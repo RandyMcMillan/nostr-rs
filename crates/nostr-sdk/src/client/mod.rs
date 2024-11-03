@@ -148,9 +148,10 @@ impl Client {
     /// use nostr_sdk::prelude::*;
     ///
     /// let keys = Keys::generate();
-    /// let opts = Options::new().wait_for_send(true);
+    /// let opts = Options::new().gossip(true);
     /// let client = Client::with_opts(keys, opts);
     /// ```
+    // TODO: deprecate, use `ClientBuilder` instead
     #[inline]
     pub fn with_opts<T>(signer: T, opts: Options) -> Self
     where
@@ -177,6 +178,7 @@ impl Client {
     }
 
     /// Compose [`Client`] from [`ClientBuilder`]
+    // TODO: change visibility to private
     pub fn from_builder(builder: ClientBuilder) -> Self {
         let client = Self {
             pool: RelayPool::with_database(builder.opts.pool, builder.database),
@@ -1219,7 +1221,6 @@ impl Client {
             .author(public_key)
             .kind(Kind::Metadata)
             .limit(1);
-        // TODO: add fetch_event and use that
         let events: Events = self.fetch_events(vec![filter], timeout).await?;
         match events.first() {
             Some(event) => Ok(Metadata::try_from(event)?),
@@ -1254,7 +1255,7 @@ impl Client {
         self.send_event_builder(builder).await
     }
 
-    /// Set relay list (NIP65)
+    /// Update relay list
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/65.md>
     #[inline]
@@ -1269,7 +1270,10 @@ impl Client {
     /// Publish text note
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/01.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn publish_text_note<S, I>(
         &self,
         content: S,
@@ -1286,7 +1290,10 @@ impl Client {
     /// Set contact list
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/02.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn set_contact_list<I>(&self, list: I) -> Result<Output<EventId>, Error>
     where
         I: IntoIterator<Item = Contact>,
@@ -1422,7 +1429,10 @@ impl Client {
     }
 
     /// Repost
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn repost(
         &self,
         event: &Event,
@@ -1435,7 +1445,10 @@ impl Client {
     /// Delete event
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/09.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn delete_event<T>(&self, id: T) -> Result<Output<EventId>, Error>
     where
         T: Into<EventIdOrCoordinate>,
@@ -1447,41 +1460,34 @@ impl Client {
     /// Like event
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/25.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn like(&self, event: &Event) -> Result<Output<EventId>, Error> {
+        #[allow(deprecated)]
         self.reaction(event, "+").await
     }
 
     /// Disike event
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/25.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn dislike(&self, event: &Event) -> Result<Output<EventId>, Error> {
+        #[allow(deprecated)]
         self.reaction(event, "-").await
     }
 
     /// React to an [`Event`]
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/25.md>
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// use std::str::FromStr;
-    ///
-    /// use nostr_sdk::prelude::*;
-    ///
-    /// # #[tokio::main]
-    /// # async fn main() {
-    /// #   let keys = Keys::generate();
-    /// #   let client = Client::new(keys);
-    /// let event =
-    ///     Event::from_json(r#"{"content":"uRuvYr585B80L6rSJiHocw==?iv=oh6LVqdsYYol3JfFnXTbPA==","created_at":1640839235,"id":"2be17aa3031bdcb006f0fce80c146dea9c1c0268b0af2398bb673365c6444d45","kind":4,"pubkey":"f86c44a2de95d9149b51c6a29afeabba264c18e2fa7c49de93424a0c56947785","sig":"a5d9290ef9659083c490b303eb7ee41356d8778ff19f2f91776c8dc4443388a64ffcf336e61af4c25c05ac3ae952d1ced889ed655b67790891222aaa15b99fdd","tags":[["p","13adc511de7e1cfcf1c6b7f6365fb5a03442d7bcacf565ea57fa7770912c023d"]]}"#)
-    ///         .unwrap();
-    ///
-    /// client.reaction(&event, "🐻").await.unwrap();
-    /// # }
-    /// ```
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn reaction<S>(&self, event: &Event, reaction: S) -> Result<Output<EventId>, Error>
     where
         S: Into<String>,
@@ -1493,7 +1499,10 @@ impl Client {
     /// Create new channel
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/28.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn new_channel(&self, metadata: &Metadata) -> Result<Output<EventId>, Error> {
         let builder = EventBuilder::channel(metadata);
         self.send_event_builder(builder).await
@@ -1502,7 +1511,10 @@ impl Client {
     /// Update channel metadata
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/28.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn set_channel_metadata(
         &self,
         channel_id: EventId,
@@ -1516,7 +1528,10 @@ impl Client {
     /// Send message to channel
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/28.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn send_channel_msg<S>(
         &self,
         channel_id: EventId,
@@ -1533,7 +1548,10 @@ impl Client {
     /// Hide channel message
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/28.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn hide_channel_msg<S>(
         &self,
         message_id: EventId,
@@ -1549,7 +1567,10 @@ impl Client {
     /// Mute channel user
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/28.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn mute_channel_user<S>(
         &self,
         pubkey: PublicKey,
@@ -1693,7 +1714,10 @@ impl Client {
     /// File metadata
     ///
     /// <https://github.com/nostr-protocol/nips/blob/master/94.md>
-    #[inline]
+    #[deprecated(
+        since = "0.36.0",
+        note = "Use the `EventBuilder` in conjunction with `Client::send_event_builder` or similar method."
+    )]
     pub async fn file_metadata<S>(
         &self,
         description: S,
