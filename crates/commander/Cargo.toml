@@ -1,0 +1,18 @@
+[package]
+name = "commander"
+version = "0.0.1"
+edition = "2021"
+authors.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow = { version = "1.0" }
+clap = "2"
+nostr = { version = "0.36.0", path = "../../crates/nostr" }
+nostr-sdk = { version = "0.36.0", path = "../../crates/nostr-sdk" }
+serde = "1.0.99"
+reqwest = "0.9.20"
+
