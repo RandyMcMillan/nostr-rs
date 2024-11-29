@@ -22,11 +22,11 @@ pub(crate) fn online() {
     let mut count = 0;
     for relay in v {
         print!("{{\"{:}\":{:}}}", count, relay);
-        v_json.push(format!("{:}:{:}", count, relay));
+        v_json.push(format!("{{\"{:}\":{:}}}", count, relay));
         count += 1;
     }
     let titles = v_json.iter().map(|relay| relay).collect::<Vec<&String>>();
-    //println!("{:?}", titles);
+    println!("{:?}", titles);
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
     //println!("relay: {:?}", relay);
