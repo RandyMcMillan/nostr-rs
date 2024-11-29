@@ -1,5 +1,5 @@
 [package]
-name = "commander"
+name = "nostr_watch"
 version = "0.0.1"
 edition = "2021"
 authors.workspace = true

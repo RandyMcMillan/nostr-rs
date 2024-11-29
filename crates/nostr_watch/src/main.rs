@@ -1,7 +1,7 @@
 use clap::{App, AppSettings, SubCommand};
-use commander::run;
+use nostr_watch::run;
 fn main() {
-    let matches = App::new("nostr-commander")
+    let matches = App::new("nostr_watch")
         .author("Nostr-SDK Developers")
         .version("v0.0.1")
         .setting(AppSettings::ArgRequiredElseHelp)
