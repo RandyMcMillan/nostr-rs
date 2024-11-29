@@ -20,7 +20,6 @@ mod nip5;
 use nip34::nip34;
 mod nip34;
 
-
 pub fn run(name: &str) {
     match name {
         "offline" => offline(),
