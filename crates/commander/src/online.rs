@@ -20,14 +20,17 @@ pub(crate) fn online() {
     //println!("{:}", v[0]);
     //println!("{:}", v[1]);
     let mut count = 0;
+    print!("[\"EVENT\",");
     for relay in v {
-        //print!("{{\"{:}\":{:}}}", count, relay);
-        v_json.push(format!("{{\"{:}\":{:}}}", count, relay));
+        print!("{{\"{:}\":{:}}},", count, relay);
+        v_json.push(format!("{{\"{:}\":{:}}},", count, relay));
         count += 1;
     }
+    println!("{{\"000\":\"wss://damus.relay.io\"}}");
+    print!("]");
     let titles = v_json.iter().map(|relay| relay).collect::<Vec<&String>>();
     for t in titles {
-    println!("{:}", t);
+    //print!("{}", t);
     }
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
