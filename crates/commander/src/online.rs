@@ -19,14 +19,14 @@ pub(crate) fn online() {
     let mut v_relay: Vec<Relay> = vec![];
     //println!("{:}", v[0]);
     //println!("{:}", v[1]);
-    let mut count = 0;
+    let mut count = 1;
     print!("[\"EVENT\",");
     for relay in v {
         print!("{{\"{:}\":{:}}},", count, relay);
         v_json.push(format!("{{\"{:}\":{:}}},", count, relay));
         count += 1;
     }
-    println!("{{\"000\":\"wss://damus.relay.io\"}}");
+    println!("{{\"{}\":\"wss://relay.gnostr.org\"}}", count);
     print!("]");
     let titles = v_json.iter().map(|relay| relay).collect::<Vec<&String>>();
     for t in titles {
