@@ -1109,19 +1109,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "commander"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "clap 2.34.0",
- "nostr",
- "nostr-sdk",
- "reqwest 0.9.24",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "concurrent-queue"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3873,6 +3860,19 @@ dependencies = [
  "nostr",
  "thiserror",
  "webln",
+]
+
+[[package]]
+name = "nostr_watch"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "clap 2.34.0",
+ "nostr",
+ "nostr-sdk",
+ "reqwest 0.9.24",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
