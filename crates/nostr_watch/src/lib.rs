@@ -17,6 +17,9 @@ use nip4::nip4;
 mod nip4;
 use nip5::nip5;
 mod nip5;
+use nip34::nip34;
+mod nip34;
+
 
 pub fn run(name: &str) {
     match name {
@@ -29,6 +32,7 @@ pub fn run(name: &str) {
         "nip3" => nip3(),
         "nip4" => nip4(),
         "nip5" => nip5(),
+        "nip34" => nip34(),
         _ => panic!("Invalid option"),
     };
 }
