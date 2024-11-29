@@ -9,6 +9,10 @@ default:
 cli:
 	cargo build -p nostr-cli --release
 
+# Build nostr_watch (release)
+nostr_watch:
+	cargo build -p nostr_watch --release
+
 # Execute a partial check (MSRV is not checked)
 precommit:
     @bash contrib/scripts/precommit.sh
