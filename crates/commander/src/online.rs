@@ -23,7 +23,7 @@ pub(crate) fn online() {
     let mut count = 0;
     for relay in v {
         //println!("{},{:} ", count, relay);
-        v_json.push(format!("\"{}\":{:}", count, relay));
+        v_json.push(format!("\"{}\":\"{:}\"", count, relay));
         //println!("{{{:}}}", v_json[count]);
         count += 1;
     }
@@ -31,7 +31,7 @@ pub(crate) fn online() {
         .iter()
         .map(|relay| relay)
         .collect::<Vec<&String>>();
-    println!("titles: {:?}", titles);
+    println!("{:?}", titles);
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
     //println!("relay: {:?}", relay);
