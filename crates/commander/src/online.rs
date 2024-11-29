@@ -29,44 +29,10 @@ pub(crate) fn online() {
     for t in titles {
         print!("{}", t);
     }
-
-    //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
-    //println!("relay: {:?}", relay);
-
-    process::exit(0);
-    let request_url = "https://jsonplaceholder.typicode.com/photos";
-    let mut response = reqwest::get(request_url).unwrap();
-    let json = response.json::<Vec<Photo>>().unwrap();
-    println!("{} photos", json.len());
-    let titles = json
-        .iter()
-        .map(|photo| &photo.title)
-        .collect::<Vec<&String>>();
-    println!("titles: {:?}", titles)
 }
 
 #[derive(Deserialize, Debug)]
 struct Relay {
     count: u16,
     relay: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct User {
-    #[serde(rename = "userId")]
-    user_id: u32,
-    id: u32,
-    title: String,
-    completed: bool,
-}
-
-#[derive(Deserialize, Debug)]
-struct Photo {
-    #[serde(rename = "albumId")]
-    album_id: u32,
-    id: u32,
-    title: String,
-    url: String,
-    #[serde(rename = "thumbnailUrl")]
-    thumbnail_url: String,
 }
