@@ -19,7 +19,7 @@ pub(crate) fn online() {
     let mut v_relay: Vec<Relay> = vec![];
     //println!("{:}", v[0]);
     //println!("{:}", v[1]);
-    let mut count = 1;
+    let mut count = 1;//skip EVENT when indexing
     print!("[\"EVENT\",");
     for relay in v {
         print!("{{\"{:}\":{:}}},", count, relay);
