@@ -11,26 +11,23 @@ pub(crate) fn online() {
 
     let mut tmp_string = String::new();
     res.read_to_string(&mut tmp_string).unwrap().to_string();
-    //println!("{:}", format!("{:}", tmp_string.to_string()));
     tmp_string = tmp_string.replace("[", "");
     tmp_string = tmp_string.replace("]", "");
     let v: Vec<&str> = tmp_string.split(",").collect();
     let mut v_json: Vec<String> = vec![];
     let mut v_relay: Vec<Relay> = vec![];
-    //println!("{:}", v[0]);
-    //println!("{:}", v[1]);
     let mut count = 1; //skip EVENT when indexing
-    print!("[\"EVENT\",");
+    v_json.push(format!("[\"EVENT\","));
     for relay in v {
-        print!("{{\"{:}\":{:}}},", count, relay);
+        //print!("{{\"{:}\":{:}}},", count, relay);
         v_json.push(format!("{{\"{:}\":{:}}},", count, relay));
         count += 1;
     }
-    println!("{{\"{}\":\"wss://relay.gnostr.org\"}}", count);
-    print!("]");
+    v_json.push(format!("{{\"{}\":\"wss://relay.gnostr.org\"}}", count));
+    v_json.push(format!("]"));
     let titles = v_json.iter().map(|relay| relay).collect::<Vec<&String>>();
     for t in titles {
-        //print!("{}", t);
+        print!("{}", t);
     }
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
