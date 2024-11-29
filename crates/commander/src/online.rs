@@ -17,11 +17,11 @@ pub(crate) fn online() {
     let v: Vec<&str> = tmp_string.split(",").collect();
     let mut v_json: Vec<String> = vec![];
     let mut v_relay: Vec<Relay> = vec![];
-    println!("{:}", v[0]);
-    println!("{:}", v[1]);
+    //println!("{:}", v[0]);
+    //println!("{:}", v[1]);
     let mut count = 0;
     for relay in v {
-        print!("\"{:}\":{:},", count, relay);
+        print!("{{\"{:}\":{:}}}", count, relay);
         v_json.push(format!("{:}:{:}", count, relay));
         count += 1;
     }
