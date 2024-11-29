@@ -24,7 +24,7 @@ pub(crate) fn online() {
     for relay in v {
         //println!("{},{:} ", count, relay);
         v_json.push(format!("\"{}\":{:}", count, relay));
-        println!("{{{:}}}", v_json[count]);
+        //println!("{{{:}}}", v_json[count]);
         count += 1;
     }
     let titles = v_json
