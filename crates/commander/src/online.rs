@@ -17,21 +17,16 @@ pub(crate) fn online() {
     let v: Vec<&str> = tmp_string.split(",").collect();
     let mut v_json: Vec<String> = vec![];
     let mut v_relay: Vec<Relay> = vec![];
-    //print!("{:?}", v);
-    //println!("{:?}", v[0]);
-    //println!("{:?}", v[1]);
+    println!("{:}", v[0]);
+    println!("{:}", v[1]);
     let mut count = 0;
     for relay in v {
-        //println!("{},{:} ", count, relay);
-        v_json.push(format!("\"{}\":\"{:}\"", count, relay));
-        //println!("{{{:}}}", v_json[count]);
+        print!("\"{:}\":{:},", count, relay);
+        v_json.push(format!("{:}:{:}", count, relay));
         count += 1;
     }
-    let titles = v_json
-        .iter()
-        .map(|relay| relay)
-        .collect::<Vec<&String>>();
-    println!("{:?}", titles);
+    let titles = v_json.iter().map(|relay| relay).collect::<Vec<&String>>();
+    //println!("{:?}", titles);
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
     //println!("relay: {:?}", relay);
