@@ -22,3 +22,9 @@ serve: init
 
 test:
 	cd snippets && just test
+
+clean:
+	rm -rf $(which mdbook)
+	rm -rf $(which mdbook-linkcheck)
+	rm -rf $(which mdbook-admonish)
+	rm -rf $(which mdbook-snippets)
