@@ -13,7 +13,6 @@ fn walk() -> Result<()> {
         Keys::parse("0000000000000000000000000000000000000000000000000000000000000001")?;
     #[allow(unused_assignments)]
     let mut parent_pubkey = parent_privkey.public_key();
-    //println!("parent_pubkey hash:{:?}", parent_pubkey);
     revwalk.set_sorting(git2::Sort::TIME)?;
     revwalk.push_head()?;
     for commit_id in revwalk {
@@ -42,8 +41,6 @@ fn main() -> Result<()> {
         SecretKey::parse("nsec1uwcvgs5clswpfxhm7nyfjmaeysn6us0yvjdexn9yjkv3k7zjhp2sv7rt36")?;
     keys = Keys::new(secret_key);
     println!("key: {}", keys.public_key());
-    //keys = Keys::parse("0000000000000000000000000000000000000000000000000000000000000001")?;
-    //println!("key: {}", keys.public_key());
     keys = Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")?;
     println!("key: {}", keys.public_key());
     let _ = walk();
