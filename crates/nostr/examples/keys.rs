@@ -51,8 +51,16 @@ fn main() -> Result<()> {
         SecretKey::parse("nsec1uwcvgs5clswpfxhm7nyfjmaeysn6us0yvjdexn9yjkv3k7zjhp2sv7rt36")?;
     keys = Keys::new(secret_key);
     println!("pubkey: {}", keys.public_key());
+    assert_eq!(
+        keys.public_key(),
+        PublicKey::from_str("a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd")?
+    );
     keys = Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")?;
     println!("pubkey: {}", keys.public_key());
+    assert_eq!(
+        keys.public_key(),
+        PublicKey::from_str("a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd")?
+    );
     let _ = walk();
     Ok(())
 }
