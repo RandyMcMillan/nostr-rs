@@ -1,6 +1,6 @@
 default:
 	@just --list
-[private]
+# install book depends
 init:
 	@mdbook --version || \
 	cargo binstall -y --force mdbook --version 0.4.40 || \
@@ -14,15 +14,19 @@ init:
 	@mdbook-snippets --version || \
 	cargo install --force --path ./snippets-processor
 
+# build mdbook
 build: init
 	mdbook build
 
+# serve mdbook (localhost:3000)
 serve: init
 	mdbook serve
 
+# cd snippets && just test
 test:
 	cd snippets && just test
 
+# clean mdbook depends
 clean:
 	rm -rf $(which mdbook)
 	rm -rf $(which mdbook-linkcheck)
