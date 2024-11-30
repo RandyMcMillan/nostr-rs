@@ -20,12 +20,13 @@ fn walk() -> Result<()> {
     revwalk.set_sorting(git2::Sort::TIME)?;
     revwalk.push_head()?;
     for commit_id in revwalk {
+        //println!("");
+        //println!("parent_privkey hash:{:?}", parent_privkey);
         println!("");
-        println!("parent_privkey hash:{:?}", parent_privkey);
-        println!("");
+        parent_pubkey = parent_privkey.public_key();
         println!(
             "parent_pubkey  hash:{}",
-            parent_pubkey.public_key(Parity::Even)
+            parent_privkey.public_key()
         );
         let commit_id = commit_id?;
         let commit = repo.find_commit(commit_id)?;
