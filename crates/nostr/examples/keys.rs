@@ -6,9 +6,9 @@ use std::cmp::max;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use bitcoin::key::Parity;
 use git2::{Error, Repository};
 use nostr::prelude::*;
-use bitcoin::key::Parity;
 
 fn walk() -> Result<()> {
     let mut mtimes: HashMap<PathBuf, i64> = HashMap::new();
@@ -23,7 +23,10 @@ fn walk() -> Result<()> {
         println!("");
         println!("parent_privkey hash:{:?}", parent_privkey);
         println!("");
-        println!("parent_pubkey  hash:{}", parent_pubkey.public_key(Parity::Even));
+        println!(
+            "parent_pubkey  hash:{}",
+            parent_pubkey.public_key(Parity::Even)
+        );
         let commit_id = commit_id?;
         let commit = repo.find_commit(commit_id)?;
         let pk = format!("{:0>64?}", commit.id());
