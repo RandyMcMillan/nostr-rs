@@ -3,8 +3,8 @@ venv:
 
 requirements: venv
 	. ENV/bin/activate && \
-	$(which pip) install -r requirements.txt && \
-	$(which pip3) install -r requirements.txt
+	$(which pip) install -U -r requirements.txt && \
+	$(which pip3) install -U -r requirements.txt
 
 test: requirements
-	. ENV/bin/activate && pyright src
+	. ENV/bin/activate && python -m pyright src
