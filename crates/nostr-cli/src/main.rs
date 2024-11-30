@@ -149,7 +149,8 @@ async fn run() -> Result<()> {
             signer.serve(CustomActions).await?;
 
             Ok(())
-        }
+        },
+		cli::Command::Gnit { .. } => todo!()
     }
 }
 
