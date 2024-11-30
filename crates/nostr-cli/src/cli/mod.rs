@@ -21,6 +21,11 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Start gnostr-gnit server
+    Gnit {
+        #[clap(long)]
+        parameters: String,
+    },
     /// Open nostr shell
     Shell {
         #[clap(long)]
