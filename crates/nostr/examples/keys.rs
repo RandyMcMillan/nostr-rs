@@ -2,10 +2,12 @@
 // Copyright (c) 2023-2024 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use nostr::prelude::*;
+use std::cmp::max;
+use std::collections::HashMap;
+use std::path::PathBuf;
 
-use std::{cmp::max, collections::HashMap, path::PathBuf};
-use git2::{Repository, Error};
+use git2::{Error, Repository};
+use nostr::prelude::*;
 
 fn walk() -> Result<()> {
     let mut mtimes: HashMap<PathBuf, i64> = HashMap::new();
@@ -18,11 +20,11 @@ fn walk() -> Result<()> {
         let commit = repo.find_commit(commit_id)?;
         //println!("{:0>64?}", commit.id());
         let pk = format!("{:0>64?}", commit.id());
-        println!("{}", pk);
-    let keys = Keys::parse(pk);
-    println!("pk public: {}", keys?.public_key());
+        println!("padded commit hash:{}", pk);
+        let keys = Keys::parse(pk);
+        println!("pubkey from   hash:{}", keys?.public_key());
     }
-    Ok(())    
+    Ok(())
 }
 
 fn main() -> Result<()> {
