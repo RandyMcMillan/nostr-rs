@@ -45,6 +45,10 @@ check-crates-msrv:
 check-docs:
 	@bash contrib/scripts/check-docs.sh
 
+# Build nostr examples
+examples:
+	cargo build --examples --release
+
 # Release rust crates
 [confirm]
 release:
@@ -64,7 +68,7 @@ clean:
 
 # Build and serve the book
 book:
-    cd book && just serve
+    cd book && just clean build serve
 
 # Get many-events.json to test database performance
 many-events:
