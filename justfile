@@ -45,6 +45,10 @@ check-crates-msrv:
 check-docs:
 	@bash contrib/scripts/check-docs.sh
 
+# Build nostr examples
+examples:
+	cargo build --examples --release
+
 # Release rust crates
 [confirm]
 release:

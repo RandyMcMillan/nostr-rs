@@ -7,7 +7,7 @@ use nostr::prelude::*;
 use std::{cmp::max, collections::HashMap, path::PathBuf};
 use git2::{Repository, Error};
 
-fn walk() -> Result<(), Error> {
+fn walk() -> Result<()> {
     let mut mtimes: HashMap<PathBuf, i64> = HashMap::new();
     let repo = Repository::open(".")?;
     let mut revwalk = repo.revwalk()?;
@@ -16,7 +16,11 @@ fn walk() -> Result<(), Error> {
     for commit_id in revwalk {
         let commit_id = commit_id?;
         let commit = repo.find_commit(commit_id)?;
-        println!("{:0>64?}", commit.id());
+        //println!("{:0>64?}", commit.id());
+        let pk = format!("{:0>64?}", commit.id());
+        println!("{}", pk);
+    let keys = Keys::parse(pk);
+    println!("pk public: {}", keys?.public_key());
     }
     Ok(())    
 }
