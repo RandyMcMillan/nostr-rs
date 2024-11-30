@@ -1,3 +1,5 @@
+default:
+	@just --list
 [private]
 init:
 	@mdbook --version || cargo install mdbook --version 0.4.40
