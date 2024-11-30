@@ -3,6 +3,16 @@
 // Distributed under the MIT software license
 
 use nostr_sdk::prelude::*;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about)]
+pub struct Args {
+    /// Key
+    ///
+    #[clap(short, long, value_parser, default_value = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")]
+    privkey: String
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
