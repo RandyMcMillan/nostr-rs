@@ -68,7 +68,7 @@ clean:
 
 # Build and serve the book
 book:
-    cd book && just clean build serve
+    cd book && just build serve
 
 # Get many-events.json to test database performance
 many-events:
