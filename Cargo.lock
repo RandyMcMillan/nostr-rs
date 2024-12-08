@@ -2175,7 +2175,7 @@ dependencies = [
  "cfg-if",
  "js-sys",
  "libc",
- "wasi",
+ "wasi 0.11.0+wasi-snapshot-preview1",
  "wasm-bindgen",
 ]
 
@@ -3121,7 +3121,7 @@ checksum = "a4a650543ca06a924e8b371db273b2756685faae30f8487da1b56505a8f78b0c"
 dependencies = [
  "libc",
  "log",
- "wasi",
+ "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.48.0",
 ]
 
@@ -3133,7 +3133,7 @@ checksum = "80e04d1dcff3aae0704555fe5fee3bcfaf3d1fdf8a7e521d5b9d2b42acb52cec"
 dependencies = [
  "hermit-abi 0.3.9",
  "libc",
- "wasi",
+ "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.52.0",
 ]
 
@@ -3213,6 +3213,7 @@ dependencies = [
  "scrypt",
  "serde",
  "serde_json",
+ "time 0.1.45",
  "tokio",
  "unicode-normalization",
  "url",
@@ -3364,6 +3365,7 @@ dependencies = [
  "nostr-zapper",
  "nwc",
  "thiserror",
+ "time 0.1.45",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -4373,7 +4375,7 @@ dependencies = [
  "hashlink",
  "libsqlite3-sys",
  "smallvec",
- "time",
+ "time 0.3.36",
 ]
 
 [[package]]
@@ -4710,7 +4712,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "serde_with_macros",
- "time",
+ "time 0.3.36",
 ]
 
 [[package]]
@@ -4852,7 +4854,7 @@ dependencies = [
  "num-bigint",
  "num-traits",
  "thiserror",
- "time",
+ "time 0.3.36",
 ]
 
 [[package]]
@@ -5176,6 +5178,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d050e60b33d41c19108b32cea32164033a9013fe3b46cbd4457559bfbf77afaa"
 dependencies = [
  "num_cpus",
+]
+
+[[package]]
+name = "time"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b797afad3f312d1c66a56d11d0316f916356d11bd158fbc6ca6389ff6bf805a"
+dependencies = [
+ "libc",
+ "wasi 0.10.0+wasi-snapshot-preview1",
+ "winapi",
 ]
 
 [[package]]
@@ -5662,7 +5675,7 @@ dependencies = [
  "signature",
  "strum 0.26.3",
  "thiserror",
- "time",
+ "time 0.3.36",
  "tor-async-utils",
  "tor-basic-utils",
  "tor-checkable",
@@ -6017,7 +6030,7 @@ dependencies = [
  "static_assertions",
  "strum 0.26.3",
  "thiserror",
- "time",
+ "time 0.3.36",
  "tor-basic-utils",
  "tor-error",
  "tor-hscrypto",
@@ -6056,7 +6069,7 @@ dependencies = [
  "smallvec",
  "subtle",
  "thiserror",
- "time",
+ "time 0.3.36",
  "tinystr",
  "tor-basic-utils",
  "tor-bytes",
@@ -6684,6 +6697,12 @@ dependencies = [
 
 [[package]]
 name = "wasi"
+version = "0.10.0+wasi-snapshot-preview1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
+
+[[package]]
+name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
@@ -6694,7 +6713,7 @@ version = "0.12.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1fbb4ef9bbca0c1170e0b00dd28abc9e3b68669821600cad1caaed606583c6d"
 dependencies = [
- "wasi",
+ "wasi 0.11.0+wasi-snapshot-preview1",
 ]
 
 [[package]]

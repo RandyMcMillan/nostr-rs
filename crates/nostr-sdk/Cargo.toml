@@ -45,6 +45,7 @@ nostr-database.workspace = true
 nostr-relay-pool.workspace = true
 nostr-zapper = { workspace = true, optional = true }
 thiserror.workspace = true
+time = "0.1.39"
 tokio = { workspace = true, features = ["sync"] }
 tracing = { workspace = true, features = ["std", "attributes"] }
 

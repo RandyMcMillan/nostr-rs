@@ -117,10 +117,10 @@ fn main() -> Result<()> {
     // Random keys
     //let keys = Keys::generate();
     let keys = Keys::parse(&padded_hash);
-	let binding = keys?;
-	let secret_key = binding.secret_key();
+    let binding = keys?;
+    let secret_key = binding.secret_key();
 
-	let public_key = binding.public_key();
+    let public_key = binding.public_key();
     //let secret_key = keys?.secret_key();
 
     println!("Public key: {}", public_key);
