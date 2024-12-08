@@ -19,10 +19,10 @@ use git2::{Commit, DiffOptions, ObjectType, Repository, Signature, Time};
 use git2::{DiffFormat, Error, Pathspec};
 use std::str;
 
-use nostr::Keys;
-use nostr::ToBech32;
-use nostr::SecretKey;
 use nostr::FromBech32;
+use nostr::Keys;
+use nostr::SecretKey;
+use nostr::ToBech32;
 
 #[derive(Parser)]
 struct Args {
@@ -192,7 +192,7 @@ fn run(args: &Args) -> Result<(), Error> {
     // print!
     for commit in revwalk {
         let commit = commit?;
-		let _ = print_commit(&commit);
+        let _ = print_commit(&commit);
         if !args.flag_patch || commit.parents().len() > 1 {
             continue;
         }
@@ -240,7 +240,6 @@ fn pad_commit_hash(commit_hash: &str, desired_length: usize) -> String {
 }
 
 fn print_commit(commit: &Commit) -> Result<(), Box<dyn std::error::Error>> {
-
     let padded_hash = pad_commit_hash(&commit.id().to_string(), 64);
 
     let keys = Keys::parse(&padded_hash);
@@ -279,7 +278,7 @@ fn print_commit(commit: &Commit) -> Result<(), Box<dyn std::error::Error>> {
         println!("    {}", line);
     }
     println!();
-	Ok(())
+    Ok(())
 }
 
 fn print_time(time: &Time, prefix: &str) {
