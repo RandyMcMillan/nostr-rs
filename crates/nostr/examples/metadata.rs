@@ -9,6 +9,13 @@ use std::error::Error;
 
 #[derive(Parser)]
 struct Args {
+    #[structopt(
+        name = "secret",
+        long,
+        default_value = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    )]
+    /// Nostr secret key
+    secret: String,
     #[structopt(name = "username", long, default_value = "nostr user")]
     /// Nostr username
     username: String,
@@ -37,10 +44,10 @@ fn run(args: &Args) -> Result<(), Box<dyn Error>> {
         .name(args.username.clone())
         .display_name(args.displayname.clone())
         .about(args.about.clone().unwrap())
-		.picture(Url::parse(&args.picture.clone().unwrap())?)
-		.banner(Url::parse(&args.banner.clone().unwrap())?)
+        .picture(Url::parse(&args.picture.clone().unwrap())?)
+        .banner(Url::parse(&args.banner.clone().unwrap())?)
         .nip05(args.nip05.clone().unwrap())
-		.lud16(args.lud16.clone().unwrap());
+        .lud16(args.lud16.clone().unwrap());
 
     println!("{}", metadata.as_json());
 
