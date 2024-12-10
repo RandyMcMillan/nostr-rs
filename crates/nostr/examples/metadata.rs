@@ -9,38 +9,38 @@ use std::error::Error;
 
 #[derive(Parser)]
 struct Args {
-    #[structopt(name = "username", long)]
+    #[structopt(name = "username", long, default_value = "nostr user")]
     /// Nostr username
     username: String,
-    #[structopt(name = "displayname", long)]
+    #[structopt(name = "displayname", long, default_value = "nostr user")]
     /// Nostr display name
     displayname: String,
-    #[structopt(name = "about", long)]
+    #[structopt(name = "about", long, default_value = "nostr user")]
     /// Nostr about string
     about: Option<String>,
-    #[structopt(name = "picture", long)]
+    #[structopt(name = "picture", long, default_value = "https://robohash.org/0")]
     /// picture url
     picture: Option<String>,
-    #[structopt(name = "banner", long)]
+    #[structopt(name = "banner", long, default_value = "https://robohash.org/0")]
     /// banner url
     banner: Option<String>,
-    #[structopt(name = "nip05", long)]
+    #[structopt(name = "nip05", long, default_value = "username@example.com")]
     /// nip05
     nip05: Option<String>,
-    #[structopt(name = "lud16", long)]
+    #[structopt(name = "lud16", long, default_value = "pay@yukikishimoto.com")]
     /// lud16
     lud16: Option<String>,
 }
 
 fn run(args: &Args) -> Result<(), Box<dyn Error>> {
     let metadata = Metadata::new()
-        .name("username")
-        .display_name("My Username")
-        .about("Description")
-        .picture(Url::parse("https://robohash.org/avatar.png")?)
-        .banner(Url::parse("https://robohash.org/banner.png")?)
-        .nip05("username@example.com")
-        .lud16("pay@yukikishimoto.com");
+        .name(args.username.clone())
+        .display_name(args.displayname.clone())
+        .about(args.about.clone().unwrap())
+		.picture(Url::parse(&args.picture.clone().unwrap())?)
+		.banner(Url::parse(&args.banner.clone().unwrap())?)
+        .nip05(args.nip05.clone().unwrap())
+		.lud16(args.lud16.clone().unwrap());
 
     println!("{}", metadata.as_json());
 
