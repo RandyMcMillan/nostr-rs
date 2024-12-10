@@ -18,19 +18,19 @@ struct Args {
     displayname: String,
     #[structopt(name = "about", long)]
     /// Nostr about string
-    about: String,
+    about: Option<String>,
     #[structopt(name = "picture", long)]
     /// picture url
-    picture: String,
+    picture: Option<String>,
     #[structopt(name = "banner", long)]
     /// banner url
-    banner: String,
+    banner: Option<String>,
     #[structopt(name = "nip05", long)]
     /// nip05
-    nip05: String,
+    nip05: Option<String>,
     #[structopt(name = "lud16", long)]
     /// lud16
-    lud16: String,
+    lud16: Option<String>,
 }
 
 fn run(args: &Args) -> Result<(), Box<dyn Error>> {
