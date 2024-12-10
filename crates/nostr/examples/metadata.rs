@@ -2,14 +2,13 @@
 // Copyright (c) 2023-2024 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use nostr::prelude::*;
 #[deny(warnings)]
 use clap::Parser;
+use nostr::prelude::*;
 use std::error::Error;
 
 #[derive(Parser)]
 struct Args {
-
     #[structopt(name = "username", long)]
     /// Nostr username
     username: String,
@@ -34,13 +33,12 @@ struct Args {
 }
 
 fn run(args: &Args) -> Result<(), Box<dyn Error>> {
-
     let metadata = Metadata::new()
         .name("username")
         .display_name("My Username")
         .about("Description")
-        .picture(Url::parse("https://example.com/avatar.png")?)
-        .banner(Url::parse("https://example.com/banner.png")?)
+        .picture(Url::parse("https://robohash.org/avatar.png")?)
+        .banner(Url::parse("https://robohash.org/banner.png")?)
         .nip05("username@example.com")
         .lud16("pay@yukikishimoto.com");
 
@@ -58,12 +56,10 @@ fn run(args: &Args) -> Result<(), Box<dyn Error>> {
     //let json = ClientMessage::event(event).as_json();
     //println!("{json}");
 
-    return Ok(())
+    return Ok(());
 }
 
-
 fn main() -> Result<()> {
-
     let args = Args::parse();
     match run(&args) {
         Ok(()) => {
