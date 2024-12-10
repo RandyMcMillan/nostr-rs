@@ -11,7 +11,7 @@ struct Args {
     #[structopt(
         name = "secret",
         long,
-        default_value = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        default_value = "6b911fd37cdf5c81d4c0adb1ab7fa822ed253ab0ad9aa18d77257c88b29b718e"
     )]
     /// Nostr secret key
     secret: String,
