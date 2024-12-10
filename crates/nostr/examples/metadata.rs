@@ -49,9 +49,11 @@ fn run(args: &Args) -> Result<(), Box<dyn Error>> {
         .nip05(args.nip05.clone().unwrap())
         .lud16(args.lud16.clone().unwrap());
 
-    println!("{}", metadata.as_json());
+    //println!("{}", metadata.as_json());
 
-    //let event: Event = EventBuilder::metadata(&metadata).sign_with_keys(&keys)?;
+    let keys = Keys::parse(&args.secret);
+
+    let event: Event = EventBuilder::metadata(&metadata).sign_with_keys(&keys?).unwrap();
 
     // New text note
     //let event: Event = EventBuilder::text_note("Hello from rust-nostr").sign_with_keys(&keys)?;
@@ -60,8 +62,8 @@ fn run(args: &Args) -> Result<(), Box<dyn Error>> {
     //let event: Event = EventBuilder::text_note("POW text note from rust-nostr").pow(20).sign_with_keys(&keys)?;
 
     // Convert client nessage to JSON
-    //let json = ClientMessage::event(event).as_json();
-    //println!("{json}");
+    let json = ClientMessage::event(event).as_json();
+    println!("{json}");
 
     return Ok(());
 }
