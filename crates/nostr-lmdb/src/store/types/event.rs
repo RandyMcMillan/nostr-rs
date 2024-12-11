@@ -17,7 +17,7 @@ pub struct DatabaseTag<'a> {
     buf: StringVector<'a>,
 }
 
-impl<'a> DatabaseTag<'a> {
+impl DatabaseTag<'_> {
     /// Extract tag name and value
     #[inline]
     pub fn extract(&self) -> Option<(SingleLetterTag, &str)> {
@@ -43,21 +43,21 @@ pub struct DatabaseEvent<'a> {
     sig: &'a Fixed64Bytes,
 }
 
-impl<'a> PartialEq for DatabaseEvent<'a> {
+impl PartialEq for DatabaseEvent<'_> {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
 }
 
-impl<'a> Eq for DatabaseEvent<'a> {}
+impl Eq for DatabaseEvent<'_> {}
 
-impl<'a> PartialOrd for DatabaseEvent<'a> {
+impl PartialOrd for DatabaseEvent<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'a> Ord for DatabaseEvent<'a> {
+impl Ord for DatabaseEvent<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
         if self.created_at != other.created_at {
             // Descending order
