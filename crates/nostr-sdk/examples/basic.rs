@@ -1,6 +1,6 @@
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
-use std::collections::HashMap;
 use nostr_sdk::prelude::*;
+use std::collections::HashMap;
+use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 
 //use nostr_sdk::Client;
 //use reqwest::Client as ReqwestClient;
@@ -8,11 +8,11 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 struct BlockHeight {
-  height: u32,
+    height: u32,
 }
 #[derive(Debug, Deserialize)]
 struct BlockHash {
-  hash: String,
+    hash: String,
 }
 
 #[deny(warnings)]
@@ -73,7 +73,7 @@ fn run(args: &Args) -> Result<()> {
 
     // Convert client nessage to JSON
     let json = ClientMessage::event(event).as_json();
-    println!("{json}");
+    println!("json={json}");
 
     return Ok(());
 }
@@ -97,21 +97,16 @@ async fn block_tips_hash() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-
 #[tokio::main]
 async fn main() -> Result<()> {
+    let _ = println!("parse_args={:?}", parse_args().await);
+    let _ = println!("blocks_tips_hash={:?}", block_tips_hash().await);
 
+    let keys = reqwest::get("https://mempool.space/api/blocks/tip/hash")
+        .await?
+        .text()
+        .await?;
 
-
-
-
-
-    let _ = parse_args().await;
-    let _ = block_tips_hash().await;
-
-    let keys = reqwest::get("https://mempool.space/api/blocks/tip/hash").await?
-    .text().await?;
-   
     println!("{:?}", &keys);
     let keys = Keys::parse(&keys.clone());
     println!("{:?}", &keys);
@@ -132,7 +127,7 @@ async fn main() -> Result<()> {
     // Add relays
     client.add_relay("wss://relay.damus.io").await?;
     //client.add_relay("ws://jgqaglhautb4k6e6i2g34jakxiemqp6z4wynlirltuukgkft2xuglmqd.onion").await?;
-    
+
     // Add read relay
     client.add_read_relay("wss://relay.nostr.info").await?;
 
@@ -159,10 +154,7 @@ async fn main() -> Result<()> {
     // Create a POW text note
     let builder = EventBuilder::text_note("POW text note from nostr-sdk").pow(20);
     client.send_event_builder(builder).await?; // Send to all relays
-    // client.send_event_builder_to(["wss://relay.damus.io"], builder).await?; // Send to specific relay
-
-
-
+                                               // client.send_event_builder_to(["wss://relay.damus.io"], builder).await?; // Send to specific relay
 
     Ok(())
 }
