@@ -41,12 +41,19 @@ nwc = { version = "0.37", path = "./crates/nwc", default-features = false }
 once_cell = { version = "1.20", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 thiserror = "1.0"
-tokio = { version = ">=1.37", default-features = false }
+#tokio = { version = ">=1.37", default-features = false }
 tracing = { version = "0.1", default-features = false }
 tracing-subscriber = "0.3"
 wasm-bindgen = { version = "0.2", default-features = false }
 wasm-bindgen-futures = "0.4"
 web-sys = { version = "0.3", default-features = false }
+git2 = "0.18"
+serde = { version = "1.0", features = ["derive"] }
+#serde_json = "1.0"
+anyhow = "1.0"
+#nostr-sdk = "0.26"
+tokio = { version = "1", features = ["full"] }
+sha2 = "0.10"
 
 [patch.crates-io]
 # Patch needed to reduce bindings size

@@ -1,7 +1,7 @@
-use nostr_sdk::prelude::*;
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 
+use nostr_sdk::prelude::*;
 //use nostr_sdk::Client;
 //use reqwest::Client as ReqwestClient;
 use serde::Deserialize;
@@ -21,6 +21,9 @@ use nostr::prelude::*;
 
 #[derive(Parser)]
 struct Args {
+    #[structopt(name = "tor", long, default_value = "false")]
+    /// use tor
+    tor: bool,
     #[structopt(
         name = "secret",
         long,
@@ -56,6 +59,10 @@ struct Args {
 }
 
 fn run(args: &Args) -> Result<()> {
+    if args.tor {
+        println!("args.tor={}", args.tor);
+    }
+
     let metadata = Metadata::new()
         .name(args.username.clone())
         .display_name(args.displayname.clone())
@@ -113,10 +120,18 @@ async fn main() -> Result<()> {
 
     // Configure client to use proxy for `.onion` relays
     let addr = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, 9050));
-    let connection: Connection = Connection::new()
+    let mut connection: Connection = Connection::new()
         .embedded_tor()
         //.proxy(addr) // Use `.embedded_tor()` instead to enable the embedded tor client (require `tor` feature)
         .target(ConnectionTarget::Onion);
+
+    let args = Args::parse();
+    if args.tor {}
+
+    let connection: Connection = Connection::new()
+        .proxy(addr)
+        .target(ConnectionTarget::Onion);
+
     let opts = Options::new().connection(connection);
 
     // Create new client with custom options.
