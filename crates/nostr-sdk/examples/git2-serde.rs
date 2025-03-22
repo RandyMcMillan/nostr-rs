@@ -46,15 +46,15 @@ async fn create_event_with_custom_tags(
     Ok(signed_event.await?)
 }
 
-async fn create_event(keys: Keys) -> Result<()> {
+async fn create_event(keys: Keys, custom_tags: HashMap<String, Vec<String>>) -> Result<()> {
     //let keys =
       //  Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
     let content = "Hello, Nostr with custom tags!";
 
     //
-    let mut custom_tags = HashMap::new();
-    custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
-    custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
+    //let mut custom_tags = HashMap::new();
+    //custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
+    //custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
 
     let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
     info!("{}", serde_json::to_string_pretty(&signed_event)?);
@@ -108,6 +108,7 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
     info!("serialized: {:?}", serialized);
     Ok(serialized)
 }
+
 fn deserialize_commit<'a>(repo: &'a Repository, data: &'a str) -> Result<Commit<'a>> {
     let serializable_commit: SerializableCommit = serde_json::from_str(data)?;
 
@@ -143,7 +144,13 @@ async fn main() -> Result<()> {
 
     let keys =
         Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
-    let signed_event = create_event(keys).await;
+
+
+    let mut custom_tags = HashMap::new();
+    custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
+    custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
+
+	let signed_event = create_event(keys, custom_tags).await;
     info!("{:?}", signed_event);
 
     // Publish the event to the relays.
