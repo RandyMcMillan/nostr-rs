@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
-use tracing::info;
+use tracing::{info, debug};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
@@ -85,9 +85,9 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
         .message()
         .ok_or(anyhow!("No commit message"))?
         .to_string();
-    info!("message: {:?}", message);
+    debug!("message: {:?}", message);
     let time = commit.time().seconds();
-    info!("time: {:?}", time);
+    debug!("time: {:?}", time);
 
     let serializable_commit = SerializableCommit {
         id,
@@ -102,7 +102,7 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
     };
 
     let serialized = serde_json::to_string(&serializable_commit)?;
-    info!("serialized: {:?}", serialized);
+    debug!("serialized_commit: {:?}", serialized);
     Ok(serialized)
 }
 
@@ -153,18 +153,40 @@ async fn main() -> Result<()> {
     let signed_event = create_event(keys, custom_tags, &"custom content").await;
     info!("signed_event={:?}", signed_event);
 
+    //initialize git repo
     let repo = Repository::discover(".")?;
+
+    //gather some repo info
+    //find HEAD
     let head = repo.head()?;
     let obj = head.resolve()?.peel(ObjectType::Commit)?;
-    let commit = obj.peel_to_commit()?;
 
+    //read top commit
+    let commit = obj.peel_to_commit()?;
+    let commit_id = commit.id().to_string();
+    //some info wrangling
+    info!("commit_id: {}", commit_id);
+    //some info wrangling
     let serialized_commit = serialize_commit(&commit)?;
     info!("Serialized commit: {}", serialized_commit);
-    let commit_id = commit.id().to_string();
-    info!("Serialized commit_id: {}", commit_id);
 
+    // commit based keys
+    let keys = generate_nostr_keys_from_commit_hash(&commit_id)?;
+    info!("keys.secret_key(): {:?}", keys.secret_key());
+    info!("keys.public_key(): {}", keys.public_key());
+
+    //TODO config metadata
+
+    //create nostr client with commit based keys
+    let client = Client::new(keys);
+    client.add_relay("wss://relay.damus.io").await?;
+    client.add_relay("wss://nos.lol").await?;
+    client.connect().await;
+
+    //access some git info
     let binding = serialized_commit.clone();
     let deserialized_commit = deserialize_commit(&repo, &binding)?;
+    info!("Deserialized commit: {:?}", deserialized_commit);
 
     info!("Original commit ID: {}", commit_id);
     info!("Deserialized commit ID: {}", deserialized_commit.id());
@@ -174,20 +196,6 @@ async fn main() -> Result<()> {
     } else {
         info!("Commit IDs match!");
     }
-
-    // Nostr Integration
-    let keys = generate_nostr_keys_from_commit_hash(&commit_id)?;
-    info!("keys.secret_key(): {:?}", keys.secret_key());
-    info!("keys.public_key(): {}", keys.public_key());
-    let client = Client::new(keys);
-    client.add_relay("wss://relay.damus.io").await?;
-    client.add_relay("wss://nos.lol").await?;
-    client.connect().await;
-
-    // resend signed event created earlier
-    //client.send_event(signed_event.expect("REASON").clone()).await;
-
-    info!("Event sent: {:?}", signed_event.expect(""));
 
     let builder = EventBuilder::text_note(serialized_commit);
     let output = client.send_event_builder(builder).await?;
