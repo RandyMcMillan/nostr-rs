@@ -3,7 +3,7 @@
 // Distributed under the MIT software license
 
 use std::collections::{BTreeMap, HashMap};
-
+use std::collections::BTreeSet;
 use anyhow::{anyhow, Result};
 use git2::{Commit, ObjectType, Oid, Repository};
 use nostr_sdk::prelude::*;
@@ -216,14 +216,22 @@ async fn main() -> Result<()> {
     // format
     // filter: Filter { ids: Some({EventId(76f7789cfe0b636222ef4825a9e3e2ac580d942bf7212655e5f5ee1161264870)}), authors: None, kinds: None, search: None, since: None, until: None, limit: None, generic_tags: {} }
 
-    let mut generic_tags: BTreeMap<nostr::Alphabet, nostr::Alphabet> = BTreeMap::new();
-    generic_tags.insert(Alphabet::A, Alphabet::A);
+
+    let mut generic_tag_set = BTreeSet::new();
+    generic_tag_set.insert(String::from("A Dance With Dragons"));
+
+    let mut generic_tags: BTreeMap<nostr::Alphabet, BTreeSet<String>> = BTreeMap::new();
+    generic_tags.insert(Alphabet::C, generic_tag_set.clone());
+
+    generic_tags.insert(Alphabet::A, generic_tag_set);
+    //generic_tags.insert(Alphabet::B, Alphabet::B);
 
     let filter = Filter::new()
         .id(*output.id())
         .authors([keys.public_key()])
         .kinds([])
         .event(*output.id());
+		{generic_tags};
     info!("filter: {:?}", filter);
 
     //
