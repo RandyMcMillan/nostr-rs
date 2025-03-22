@@ -46,15 +46,9 @@ async fn create_event_with_custom_tags(
     Ok(signed_event.await?)
 }
 
-async fn create_event(keys: Keys, custom_tags: HashMap<String, Vec<String>>) -> Result<()> {
-    //let keys =
-      //  Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
-    let content = "Hello, Nostr with custom tags!";
+async fn create_event(keys: Keys, custom_tags: HashMap<String, Vec<String>>, content: &str) -> Result<()> {
 
-    //
-    //let mut custom_tags = HashMap::new();
-    //custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
-    //custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
+    //let content = "Hello, Nostr with custom tags!";
 
     let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
     info!("{}", serde_json::to_string_pretty(&signed_event)?);
@@ -142,15 +136,18 @@ fn generate_nostr_keys_from_commit_hash(commit_id: &str) -> Result<Keys> {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
+    //parse keys from sha256 hash
     let keys =
         Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
 
-
+    //create a HashMap of custom_tags
+	//used to insert commit tags
     let mut custom_tags = HashMap::new();
     custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
     custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
 
-	let signed_event = create_event(keys, custom_tags).await;
+    //send to create_event function
+	let signed_event = create_event(keys, custom_tags, &"custom content").await;
     info!("{:?}", signed_event);
 
     // Publish the event to the relays.
