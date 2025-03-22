@@ -88,7 +88,9 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
         .message()
         .ok_or(anyhow!("No commit message"))?
         .to_string();
+    info!("message: {:?}", message);
     let time = commit.time().seconds();
+    info!("time: {:?}", time);
 
     let serializable_commit = SerializableCommit {
         id,
@@ -103,6 +105,7 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
     };
 
     let serialized = serde_json::to_string(&serializable_commit)?;
+    info!("serialized: {:?}", serialized);
     Ok(serialized)
 }
 fn deserialize_commit<'a>(repo: &'a Repository, data: &'a str) -> Result<Commit<'a>> {
@@ -152,7 +155,9 @@ async fn main() -> Result<()> {
     let commit = obj.peel_to_commit()?;
 
     let serialized_commit = serialize_commit(&commit)?;
+    info!("Serialized commit: {}", serialized_commit);
     let commit_id = commit.id().to_string();
+    info!("Serialized commit_id: {}", commit_id);
 
     let binding = serialized_commit.clone();
     let deserialized_commit = deserialize_commit(&repo, &binding)?;

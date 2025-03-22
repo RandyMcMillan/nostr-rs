@@ -60,11 +60,17 @@ fn main() {
     let mut filt = serde_json::Map::new();
 
     if let Some(authors) = matches.get_one::<String>("authors") {
-        filt.insert("authors".to_string(), json!(authors.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "authors".to_string(),
+            json!(authors.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(ids) = matches.get_one::<String>("ids") {
-        filt.insert("ids".to_string(), json!(ids.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "ids".to_string(),
+            json!(ids.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(limit) = matches.get_one::<i32>("limit") {
@@ -81,22 +87,32 @@ fn main() {
     }
 
     if let Some(hashtag) = matches.get_one::<String>("hashtag") {
-        filt.insert("#t".to_string(), json!(hashtag.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "#t".to_string(),
+            json!(hashtag.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(mentions) = matches.get_one::<String>("mentions") {
-        filt.insert("#p".to_string(), json!(mentions.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "#p".to_string(),
+            json!(mentions.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(references) = matches.get_one::<String>("references") {
-        filt.insert("#e".to_string(), json!(references.split(',').collect::<Vec<&str>>()));
+        filt.insert(
+            "#e".to_string(),
+            json!(references.split(',').collect::<Vec<&str>>()),
+        );
     }
 
     if let Some(kinds) = matches.get_one::<String>("kinds") {
         if let Ok(kind_ints) = kinds
             .split(',')
             .map(|s| s.parse::<i64>())
-            .collect::<Result<Vec<i64>, _>>() {
+            .collect::<Result<Vec<i64>, _>>()
+        {
             filt.insert("kinds".to_string(), json!(kind_ints));
         } else {
             eprintln!("Error parsing kinds. Ensure they are integers.");
