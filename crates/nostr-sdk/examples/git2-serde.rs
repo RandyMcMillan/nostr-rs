@@ -46,8 +46,11 @@ async fn create_event_with_custom_tags(
     Ok(signed_event.await?)
 }
 
-async fn create_event(keys: Keys, custom_tags: HashMap<String, Vec<String>>, content: &str) -> Result<()> {
-
+async fn create_event(
+    keys: Keys,
+    custom_tags: HashMap<String, Vec<String>>,
+    content: &str,
+) -> Result<()> {
     //let content = "Hello, Nostr with custom tags!";
 
     let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
@@ -141,19 +144,14 @@ async fn main() -> Result<()> {
         Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
 
     //create a HashMap of custom_tags
-	//used to insert commit tags
+    //used to insert commit tags
     let mut custom_tags = HashMap::new();
     custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
     custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
 
-    //send to create_event function
-	let signed_event = create_event(keys, custom_tags, &"custom content").await;
-    info!("{:?}", signed_event);
-
-    // Publish the event to the relays.
-    //client.send_event(signed_event.clone()).await?;
-
-    info!("Event sent: {:?}", signed_event.expect(""));
+    //send to create_event function with &"custom content"
+    let signed_event = create_event(keys, custom_tags, &"custom content").await;
+    info!("signed_event={:?}", signed_event);
 
     let repo = Repository::discover(".")?;
     let head = repo.head()?;
@@ -185,6 +183,11 @@ async fn main() -> Result<()> {
     client.add_relay("wss://relay.damus.io").await?;
     client.add_relay("wss://nos.lol").await?;
     client.connect().await;
+
+    // resend signed event created earlier
+    //client.send_event(signed_event.expect("REASON").clone()).await;
+
+    info!("Event sent: {:?}", signed_event.expect(""));
 
     let builder = EventBuilder::text_note(serialized_commit);
     let output = client.send_event_builder(builder).await?;
