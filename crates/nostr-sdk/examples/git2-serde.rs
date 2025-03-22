@@ -53,7 +53,7 @@ async fn create_event_with_custom_tags(
 }
 
 async fn create_event() -> Result<()> {
-    let keys = Keys::generate();
+    let keys = Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
     let content = "Hello, Nostr with custom tags!";
 
 	//
