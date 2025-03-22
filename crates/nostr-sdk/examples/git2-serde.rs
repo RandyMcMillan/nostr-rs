@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
-use tracing::{info, debug};
+use tracing::{debug, info};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
@@ -166,9 +166,6 @@ async fn main() -> Result<()> {
     let commit_id = commit.id().to_string();
     //some info wrangling
     info!("commit_id: {}", commit_id);
-    //some info wrangling
-    let serialized_commit = serialize_commit(&commit)?;
-    info!("Serialized commit: {}", serialized_commit);
 
     // commit based keys
     let keys = generate_nostr_keys_from_commit_hash(&commit_id)?;
@@ -178,12 +175,16 @@ async fn main() -> Result<()> {
     //TODO config metadata
 
     //create nostr client with commit based keys
-    let client = Client::new(keys);
+    //let client = Client::new(keys);
+    let client = Client::new(keys.clone());
     client.add_relay("wss://relay.damus.io").await?;
     client.add_relay("wss://nos.lol").await?;
     client.connect().await;
 
     //access some git info
+    let serialized_commit = serialize_commit(&commit)?;
+    info!("Serialized commit: {}", serialized_commit);
+
     let binding = serialized_commit.clone();
     let deserialized_commit = deserialize_commit(&repo, &binding)?;
     info!("Deserialized commit: {:?}", deserialized_commit);
@@ -191,26 +192,32 @@ async fn main() -> Result<()> {
     info!("Original commit ID: {}", commit_id);
     info!("Deserialized commit ID: {}", deserialized_commit.id());
 
+    //additional checking
     if commit.id() != deserialized_commit.id() {
         info!("Commit IDs do not match!");
     } else {
         info!("Commit IDs match!");
     }
 
+    //build git gnostr event
     let builder = EventBuilder::text_note(serialized_commit);
+
+    //send git gnostr event
     let output = client.send_event_builder(builder).await?;
 
+    //some reporting
     info!("Event ID: {}", output.id());
     info!("Event ID BECH32: {}", output.id().to_bech32()?);
     info!("Sent to: {:?}", output.success);
     info!("Not sent to: {:?}", output.failed);
 
     // Create a filter for the specific event ID
-    let filter = Filter::new().id(*output.id());
+    // format
+    // filter: Filter { ids: Some({EventId(76f7789cfe0b636222ef4825a9e3e2ac580d942bf7212655e5f5ee1161264870)}), authors: None, kinds: None, search: None, since: None, until: None, limit: None, generic_tags: {} }
+    let filter = Filter::new().id(*output.id()).authors([keys.public_key()]);
     info!("filter: {:?}", filter);
 
     // Subscribe to the filter
-    //let opts = SubscribeAutoCloseOptions::default().filter(FilterOptions::ExitOnEOSE);
     let opts = SubscribeAutoCloseOptions::default();
     let subscription_id = client.subscribe(vec![filter], Some(opts)).await?;
     info!("subscription_id: {:?}", subscription_id);
@@ -222,15 +229,15 @@ async fn main() -> Result<()> {
     while let Ok(notification) = notifications.recv().await {
         if let RelayPoolNotification::Event {
             relay_url: _,
-            subscription_id: _,
-            event: _,
+            subscription_id: subsciption_id,
+            event: output,
         } = notification
         {
-            // 'event' is a Box<Event>
-            //info!("relay_url: {:?}", relay_url);
             info!("subscription_id: {:?}", subscription_id);
-            //info!("Received event: {:?}", event);
-            // Access event data: event.id, event.pubkey, event.content, etc.
+            info!("subscription_id.val: {:?}", subscription_id.val);
+            info!("subscription_id.success: {:?}", subscription_id.success);
+            //info!("success: {:?}", success);
+            //info!("event: {:?}", event);
         }
     }
 
