@@ -8,9 +8,9 @@ use nostr_sdk::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
-
-use std::borrow::Cow;
 use std::collections::HashMap;
+use tracing::info;
+
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
     id: String,
@@ -34,16 +34,10 @@ async fn create_event_with_custom_tags(
     let mut builder = EventBuilder::new(Kind::TextNote, content);
 
     for (tag_name, tag_values) in custom_tags {
-        //let tag = Tag::parse(TagKind::custom(String::from("owned")+&String::from("")));
-        //let tag = Tag::custom(tag_name, tag_values);
-        //let tag: Tag = Tag::parse(format!("[{:?},{:?}]","aaa", "bbb")).unwrap();
-		//let parse_string = &format!("[\"{}\", \"tag...\"]", "");
-        //let tag: Tag = Tag::parse(parse_string).unwrap();
-        //let tag: Tag = Tag::parse(["aaaaaa", "bbbbbb"]).unwrap();
-		println!("tag_name={:?}", tag_name);
-		println!("tag_values={:?}", tag_values);
+        info!("tag_name={:?}", tag_name);
+        info!("tag_values={:?}", tag_values);
+        //pops &tag_values[0]
         let tag: Tag = Tag::parse([&tag_name, &tag_values[0]]).unwrap();
-
         builder = builder.tag(tag);
     }
 
@@ -53,35 +47,33 @@ async fn create_event_with_custom_tags(
 }
 
 async fn create_event() -> Result<()> {
-    let keys = Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
+    let keys =
+        Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
     let content = "Hello, Nostr with custom tags!";
 
-	//
+    //
     let mut custom_tags = HashMap::new();
-    custom_tags.insert(
-        "first_tag".to_string(),
-        vec!["first_value".to_string()],
-    );
+    custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
     custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
 
     let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
-    println!("{}", serde_json::to_string_pretty(&signed_event)?);
+    info!("{}", serde_json::to_string_pretty(&signed_event)?);
 
     let client = Client::new(keys);
 
-	client.add_relay("wss://relay.damus.io").await?;
-	client.add_relay("wss://relay.snort.social").await?;
+    // add some relays
+    // TODO get_relay_list here
+    client.add_relay("wss://relay.damus.io").await?;
+    client.add_relay("wss://relay.snort.social").await?;
 
     // Connect to the relays.
     client.connect().await;
 
-
-   // Publish the event to the relays.
+    // Publish the event to the relays.
     client.send_event(signed_event.clone()).await?;
 
-    println!("Event sent: {:?}", signed_event);
-
-
+    info!("{}", serde_json::to_string_pretty(&signed_event)?);
+    info!("Event sent: {:?}", signed_event);
 
     Ok(())
 }
@@ -146,15 +138,13 @@ fn generate_nostr_keys_from_commit_hash(commit_id: &str) -> Result<Keys> {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
-
     let signed_event = create_event().await;
-	println!("{:?}", signed_event);
+    info!("{:?}", signed_event);
 
     // Publish the event to the relays.
     //client.send_event(signed_event.clone()).await?;
 
-    //println!("Event sent: {}", signed_event.id());
-
+    info!("Event sent: {:?}", signed_event.expect(""));
 
     let repo = Repository::discover(".")?;
     let head = repo.head()?;
@@ -167,19 +157,19 @@ async fn main() -> Result<()> {
     let binding = serialized_commit.clone();
     let deserialized_commit = deserialize_commit(&repo, &binding)?;
 
-    println!("Original commit ID: {}", commit_id);
-    println!("Deserialized commit ID: {}", deserialized_commit.id());
+    info!("Original commit ID: {}", commit_id);
+    info!("Deserialized commit ID: {}", deserialized_commit.id());
 
     if commit.id() != deserialized_commit.id() {
-        println!("Commit IDs do not match!");
+        info!("Commit IDs do not match!");
     } else {
-        println!("Commit IDs match!");
+        info!("Commit IDs match!");
     }
 
     // Nostr Integration
     let keys = generate_nostr_keys_from_commit_hash(&commit_id)?;
-    println!("keys.secret_key(): {:?}", keys.secret_key());
-    println!("keys.public_key(): {}", keys.public_key());
+    info!("keys.secret_key(): {:?}", keys.secret_key());
+    info!("keys.public_key(): {}", keys.public_key());
     let client = Client::new(keys);
     client.add_relay("wss://relay.damus.io").await?;
     client.add_relay("wss://nos.lol").await?;
@@ -188,22 +178,23 @@ async fn main() -> Result<()> {
     let builder = EventBuilder::text_note(serialized_commit);
     let output = client.send_event_builder(builder).await?;
 
-    println!("Event ID: {}", output.id());
-    println!("Event ID BECH32: {}", output.id().to_bech32()?);
-    println!("Sent to: {:?}", output.success);
-    println!("Not sent to: {:?}", output.failed);
+    info!("Event ID: {}", output.id());
+    info!("Event ID BECH32: {}", output.id().to_bech32()?);
+    info!("Sent to: {:?}", output.success);
+    info!("Not sent to: {:?}", output.failed);
 
     // Create a filter for the specific event ID
     let filter = Filter::new().id(*output.id());
-    println!("filter: {:?}", filter);
+    info!("filter: {:?}", filter);
 
     // Subscribe to the filter
     //let opts = SubscribeAutoCloseOptions::default().filter(FilterOptions::ExitOnEOSE);
     let opts = SubscribeAutoCloseOptions::default();
     let subscription_id = client.subscribe(vec![filter], Some(opts)).await?;
-    println!("subscription_id: {:?}", subscription_id);
-    //println!("subscription_id: {:?}", subscription_id.val);
-    //println!("subscription_id: {:?}", subscription_id.val);
+    info!("subscription_id: {:?}", subscription_id);
+    info!("subscription_id.val: {:?}", subscription_id.val);
+    info!("subscription_id.success: {:?}", subscription_id.success);
+    info!("subscription_id.failed: {:?}", subscription_id.failed);
 
     let mut notifications = client.notifications();
     while let Ok(notification) = notifications.recv().await {
@@ -214,54 +205,13 @@ async fn main() -> Result<()> {
         } = notification
         {
             // 'event' is a Box<Event>
-            //println!("subscription_id: {:?}", subscription_id);
-            //println!("Received event: {:?}", event);
+            //info!("relay_url: {:?}", relay_url);
+            info!("subscription_id: {:?}", subscription_id);
+            //info!("Received event: {:?}", event);
             // Access event data: event.id, event.pubkey, event.content, etc.
         }
     }
 
-    //// Wait for the event
-    //let mut event_receiver = client.notifications();
-    //while let Ok(notification) = event_receiver.recv().await {
-    //	 if let RelayPoolNotification::Event { relay_url: _, subscription_id: _, event: EVENT } = notification {
-    //      //if let RelayPoolNotification::Event(_url, subscription_id, event) = notification {
-    //          if EVENT == *output {
-    //              println!("Found event: {:?}", EVENT);
-    //              //client.unsubscribe(subscription_id).await; //Unsubscribe after finding the event.
-    //              client.disconnect().await?;
-    //              return Ok(());
-    //      }
-    //    }
-    //}
-
-    println!("Event not found.");
     client.disconnect().await?;
-
-    //let keys = Keys::parse("nsec1ufnus6pju578ste3v90xd5m2decpuzpql2295m3sknqcjzyys9ls0qlc85")?;
-    //let client = Client::new(keys);
-
-    //client.add_relay("wss://relay.damus.io").await?;
-    ////client.add_relay("wss://nostr.wine").await?;
-    ////client.add_relay("wss://relay.rip").await?;
-
-    //client.connect().await;
-
-    //// Publish a text note
-    //let builder = EventBuilder::text_note("Hello world");
-    //let output = client.send_event_builder(builder).await?;
-    //println!("Event ID: {}", output.id().to_bech32()?);
-    //println!("Sent to: {:?}", output.success);
-    //println!("Not sent to: {:?}", output.failed);
-
-    //// Create a text note POW event to relays
-    //let builder = EventBuilder::text_note("POW text note from rust-nostr").pow(20);
-    //client.send_event_builder(builder).await?;
-
-    //// Send a text note POW event to specific relays
-    //let builder = EventBuilder::text_note("POW text note from rust-nostr 16").pow(16);
-    //client
-    //    .send_event_builder_to(["wss://relay.damus.io", "wss://relay.rip"], builder)
-    //    .await?;
-
     Ok(())
 }
