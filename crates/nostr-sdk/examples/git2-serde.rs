@@ -2,13 +2,14 @@
 // Copyright (c) 2023-2024 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use std::collections::{BTreeMap, HashMap};
+
 use anyhow::{anyhow, Result};
 use git2::{Commit, ObjectType, Oid, Repository};
 use nostr_sdk::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
 use tracing::{debug, info};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -214,8 +215,24 @@ async fn main() -> Result<()> {
     // Create a filter for the specific event ID
     // format
     // filter: Filter { ids: Some({EventId(76f7789cfe0b636222ef4825a9e3e2ac580d942bf7212655e5f5ee1161264870)}), authors: None, kinds: None, search: None, since: None, until: None, limit: None, generic_tags: {} }
-    let filter = Filter::new().id(*output.id()).authors([keys.public_key()]);
+
+    let mut generic_tags: BTreeMap<nostr::Alphabet, nostr::Alphabet> = BTreeMap::new();
+    generic_tags.insert(Alphabet::A, Alphabet::A);
+
+    let filter = Filter::new()
+        .id(*output.id())
+        .authors([keys.public_key()])
+        .kinds([])
+        .event(*output.id());
     info!("filter: {:?}", filter);
+
+    //
+    //
+    //
+
+    //
+    //
+    //
 
     // Subscribe to the filter
     let opts = SubscribeAutoCloseOptions::default();
@@ -228,9 +245,20 @@ async fn main() -> Result<()> {
     let mut notifications = client.notifications();
     while let Ok(notification) = notifications.recv().await {
         if let RelayPoolNotification::Event {
+            relay_url: ref relay_url,
+            subscription_id: ref subsciption_id,
+            event: ref output,
+        } = notification
+        {
+            info!("subscription_id: {:?}", subscription_id);
+            info!("subscription_id.val: {:?}", subscription_id.val);
+            info!("subscription_id.success: {:?}", subscription_id.success);
+            //info!("success: {:?}", success);
+            //info!("event: {:?}", event);
+        }
+        if let RelayPoolNotification::Message {
             relay_url: _,
-            subscription_id: subsciption_id,
-            event: output,
+            message: message,
         } = notification
         {
             info!("subscription_id: {:?}", subscription_id);
