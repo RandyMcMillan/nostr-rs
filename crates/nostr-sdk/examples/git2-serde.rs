@@ -36,8 +36,11 @@ async fn create_event_with_custom_tags(
     for (tag_name, tag_values) in custom_tags {
         //let tag = Tag::parse(TagKind::custom(String::from("owned")+&String::from("")));
         //let tag = Tag::custom(tag_name, tag_values);
-        //let tag = Tag::parse(format!("[{:?},{:?}]",String::from("owned").chars(), String::from("").chars()).chars());
-        let tag: Tag = Tag::parse(["aaaaaa", "bbbbbb"]).unwrap();
+        //let tag: Tag = Tag::parse(format!("[{:?},{:?}]","aaa", "bbb")).unwrap();
+		//let parse_string = &format!("[\"{}\", \"tag...\"]", "");
+        //let tag: Tag = Tag::parse(parse_string).unwrap();
+        //let tag: Tag = Tag::parse(["aaaaaa", "bbbbbb"]).unwrap();
+        let tag: Tag = Tag::parse(["tag_name", &tag_name]).unwrap();
 
         builder = builder.tag(tag);
     }
