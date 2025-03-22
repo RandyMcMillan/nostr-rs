@@ -2,8 +2,8 @@
 // Copyright (c) 2023-2024 Rust Nostr Developers
 // Distributed under the MIT software license
 
-use std::collections::{BTreeMap, HashMap};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+
 use anyhow::{anyhow, Result};
 use git2::{Commit, ObjectType, Oid, Repository};
 use nostr_sdk::prelude::*;
@@ -147,8 +147,8 @@ async fn main() -> Result<()> {
     //create a HashMap of custom_tags
     //used to insert commit tags
     let mut custom_tags = HashMap::new();
-    custom_tags.insert("first_tag".to_string(), vec!["first_value".to_string()]);
-    custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
+    custom_tags.insert("gnostr".to_string(), vec!["git".to_string()]);
+    custom_tags.insert("GIT".to_string(), vec!["GNOSTR".to_string()]);
 
     //send to create_event function with &"custom content"
     let signed_event = create_event(keys, custom_tags, &"custom content").await;
@@ -216,7 +216,6 @@ async fn main() -> Result<()> {
     // format
     // filter: Filter { ids: Some({EventId(76f7789cfe0b636222ef4825a9e3e2ac580d942bf7212655e5f5ee1161264870)}), authors: None, kinds: None, search: None, since: None, until: None, limit: None, generic_tags: {} }
 
-
     let mut generic_tag_set = BTreeSet::new();
     generic_tag_set.insert(String::from("A Dance With Dragons"));
 
@@ -230,8 +229,9 @@ async fn main() -> Result<()> {
         .id(*output.id())
         .authors([keys.public_key()])
         .kinds([])
-        .event(*output.id());
-		{generic_tags};
+        .event(*output.id())
+        .hashtags(["gnostr", "git"]);
+    //{generic_tags};
     info!("filter: {:?}", filter);
 
     //
