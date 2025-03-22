@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
 
+use std::collections::HashMap;
+use std::borrow::Cow;
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
     id: String,
@@ -21,6 +23,40 @@ struct SerializableCommit {
     message: String,
     time: i64,
 }
+
+
+use nostr_sdk::EventBuilder;
+
+async fn create_event_with_custom_tags(
+    keys: &Keys,
+    content: &str,
+    custom_tags: HashMap<String, Vec<String>>,
+) -> Result<Event> {
+    let mut builder = EventBuilder::new(Kind::TextNote, content);
+
+    for (tag_name, tag_values) in custom_tags {
+        let tag = Tag::custom(TagKind::custom(String::from("owned")), tag_values);
+        builder = builder.tag(tag);
+    }
+
+    let unsigned_event = builder.build(keys.public_key()); // Build the unsigned event
+    let signed_event = unsigned_event.sign(keys); // Sign the event
+	Ok(signed_event.await?)
+}
+
+async fn create_event() -> Result<()> {
+    let keys = Keys::generate();
+    let content = "Hello, Nostr with custom tags!";
+    let mut custom_tags = HashMap::new();
+    custom_tags.insert("my_custom_tag".to_string(), vec!["value1".to_string(), "value2".to_string()]);
+    custom_tags.insert("another_tag".to_string(), vec!["single_value".to_string()]);
+
+	let event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
+    println!("{}", serde_json::to_string_pretty(&event)?);
+
+    Ok(())
+}
+
 
 fn serialize_commit(commit: &Commit) -> Result<String> {
     let id = commit.id().to_string();
