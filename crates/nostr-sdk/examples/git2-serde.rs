@@ -46,9 +46,9 @@ async fn create_event_with_custom_tags(
     Ok(signed_event.await?)
 }
 
-async fn create_event() -> Result<()> {
-    let keys =
-        Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
+async fn create_event(keys: Keys) -> Result<()> {
+    //let keys =
+      //  Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
     let content = "Hello, Nostr with custom tags!";
 
     //
@@ -141,7 +141,9 @@ fn generate_nostr_keys_from_commit_hash(commit_id: &str) -> Result<Keys> {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
-    let signed_event = create_event().await;
+    let keys =
+        Keys::parse("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855").unwrap();
+    let signed_event = create_event(keys).await;
     info!("{:?}", signed_event);
 
     // Publish the event to the relays.
