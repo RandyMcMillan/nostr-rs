@@ -40,7 +40,9 @@ async fn create_event_with_custom_tags(
 		//let parse_string = &format!("[\"{}\", \"tag...\"]", "");
         //let tag: Tag = Tag::parse(parse_string).unwrap();
         //let tag: Tag = Tag::parse(["aaaaaa", "bbbbbb"]).unwrap();
-        let tag: Tag = Tag::parse(["tag_name", &tag_name]).unwrap();
+		println!("tag_name={:?}", tag_name);
+		println!("tag_values={:?}", tag_values);
+        let tag: Tag = Tag::parse([&tag_name, &tag_values[0]]).unwrap();
 
         builder = builder.tag(tag);
     }
@@ -53,12 +55,14 @@ async fn create_event_with_custom_tags(
 async fn create_event() -> Result<()> {
     let keys = Keys::generate();
     let content = "Hello, Nostr with custom tags!";
+
+	//
     let mut custom_tags = HashMap::new();
     custom_tags.insert(
-        "my_custom_tag".to_string(),
-        vec!["value1".to_string(), "value2".to_string()],
+        "first_tag".to_string(),
+        vec!["first_value".to_string()],
     );
-    custom_tags.insert("another_tag".to_string(), vec!["single_value".to_string()]);
+    custom_tags.insert("another_tag".to_string(), vec!["another_value".to_string()]);
 
     let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
     println!("{}", serde_json::to_string_pretty(&signed_event)?);
