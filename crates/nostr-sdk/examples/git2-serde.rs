@@ -34,9 +34,12 @@ async fn create_event_with_custom_tags(
     let mut builder = EventBuilder::new(Kind::TextNote, content);
 
     for (tag_name, tag_values) in custom_tags {
-        //let tag = Tag::parse(TagKind::custom(String::from("owned")+String::from("")));
-        let tag = Tag::parse(format!("{:?}{:?}",String::from("owned").chars(), String::from("").chars()).chars());
-        builder = builder.tag(tag?);
+        //let tag = Tag::parse(TagKind::custom(String::from("owned")+&String::from("")));
+        //let tag = Tag::custom(tag_name, tag_values);
+        //let tag = Tag::parse(format!("[{:?},{:?}]",String::from("owned").chars(), String::from("").chars()).chars());
+        let tag: Tag = Tag::parse(["aaaaaa", "bbbbbb"]).unwrap();
+
+        builder = builder.tag(tag);
     }
 
     let unsigned_event = builder.build(keys.public_key()); // Build the unsigned event
