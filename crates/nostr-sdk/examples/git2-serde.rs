@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
 
-use std::collections::HashMap;
 use std::borrow::Cow;
+use std::collections::HashMap;
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
     id: String,
@@ -24,7 +24,6 @@ struct SerializableCommit {
     time: i64,
 }
 
-
 use nostr_sdk::EventBuilder;
 
 async fn create_event_with_custom_tags(
@@ -35,28 +34,47 @@ async fn create_event_with_custom_tags(
     let mut builder = EventBuilder::new(Kind::TextNote, content);
 
     for (tag_name, tag_values) in custom_tags {
-        let tag = Tag::custom(TagKind::custom(String::from("owned")), tag_values);
-        builder = builder.tag(tag);
+        //let tag = Tag::parse(TagKind::custom(String::from("owned")+String::from("")));
+        let tag = Tag::parse(format!("{:?}{:?}",String::from("owned").chars(), String::from("").chars()).chars());
+        builder = builder.tag(tag?);
     }
 
     let unsigned_event = builder.build(keys.public_key()); // Build the unsigned event
     let signed_event = unsigned_event.sign(keys); // Sign the event
-	Ok(signed_event.await?)
+    Ok(signed_event.await?)
 }
 
 async fn create_event() -> Result<()> {
     let keys = Keys::generate();
     let content = "Hello, Nostr with custom tags!";
     let mut custom_tags = HashMap::new();
-    custom_tags.insert("my_custom_tag".to_string(), vec!["value1".to_string(), "value2".to_string()]);
+    custom_tags.insert(
+        "my_custom_tag".to_string(),
+        vec!["value1".to_string(), "value2".to_string()],
+    );
     custom_tags.insert("another_tag".to_string(), vec!["single_value".to_string()]);
 
-	let event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
-    println!("{}", serde_json::to_string_pretty(&event)?);
+    let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
+    println!("{}", serde_json::to_string_pretty(&signed_event)?);
+
+    let client = Client::new(keys);
+
+	client.add_relay("wss://relay.damus.io").await?;
+	client.add_relay("wss://relay.snort.social").await?;
+
+    // Connect to the relays.
+    client.connect().await;
+
+
+   // Publish the event to the relays.
+    client.send_event(signed_event.clone()).await?;
+
+    println!("Event sent: {:?}", signed_event);
+
+
 
     Ok(())
 }
-
 
 fn serialize_commit(commit: &Commit) -> Result<String> {
     let id = commit.id().to_string();
@@ -117,6 +135,16 @@ fn generate_nostr_keys_from_commit_hash(commit_id: &str) -> Result<Keys> {
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
+
+
+    let signed_event = create_event().await;
+	println!("{:?}", signed_event);
+
+    // Publish the event to the relays.
+    //client.send_event(signed_event.clone()).await?;
+
+    //println!("Event sent: {}", signed_event.id());
+
 
     let repo = Repository::discover(".")?;
     let head = repo.head()?;
