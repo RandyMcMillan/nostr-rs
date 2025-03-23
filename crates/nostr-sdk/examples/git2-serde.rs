@@ -9,6 +9,7 @@ use git2::{Commit, ObjectType, Oid, Repository};
 use nostr_sdk::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use serde_json::{Result as SerdeJsonResult, Value};
 use sha2::{Digest, Sha256};
 use tracing::{debug, info};
 
@@ -136,6 +137,10 @@ fn generate_nostr_keys_from_commit_hash(commit_id: &str) -> Result<Keys> {
     Ok(keys)
 }
 
+fn parse_json(json_string: &str) -> SerdeJsonResult<Value> {
+    serde_json::from_str(json_string)
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
@@ -198,6 +203,65 @@ async fn main() -> Result<()> {
         info!("Commit IDs do not match!");
     } else {
         info!("Commit IDs match!");
+    }
+
+
+
+        //id,
+        //tree,
+        //parents,
+        //author_name: author.name().unwrap_or_default().to_string(),
+        //author_email: author.email().unwrap_or_default().to_string(),
+        //committer_name: committer.name().unwrap_or_default().to_string(),
+        //committer_email: committer.email().unwrap_or_default().to_string(),
+        //message,
+        //time,
+
+    let value: Value = parse_json(&serialized_commit)?;
+        //info!("Value! {}", value);
+        info!("Value!");
+        info!("Value!");
+        info!("Value!");
+
+    // Accessing object elements.
+    if let Some(id) = value.get("id") {
+        println!("id: {}", id.as_str().unwrap_or(""));
+    }
+    if let Some(tree) = value.get("tree") {
+        println!("tree: {}", tree.as_str().unwrap_or(""));
+    }
+    if let Some(parents) = value.get("parents") {
+        println!("parents: {}", parents.as_str().unwrap_or(""));
+    }
+    if let Some(author_name) = value.get("author_name") {
+        println!("author_name: {}", author_name.as_str().unwrap_or(""));
+    }
+    if let Some(author_email) = value.get("author_email") {
+        println!("author_email: {}", author_email.as_str().unwrap_or(""));
+    }
+    if let Some(committer_name) = value.get("committer_name") {
+        println!("committer_name: {}", committer_name.as_str().unwrap_or(""));
+    }
+    if let Some(committer_email) = value.get("committer_email") {
+        println!("committer_email: {}", committer_email.as_str().unwrap_or(""));
+    }
+    if let Some(message) = value.get("message") {
+        println!("message: {}", message.as_str().unwrap_or(""));
+    }
+    if let Value::Number(time) = &value["time"] {
+        println!("time: {}", time);
+    }
+
+
+    if let Value::Number(age) = &value["age"] {
+        println!("Age: {}", age);
+    }
+
+    if let Some(summary) = value.get("summary") {
+            println!("Summary: {}", summary.as_str().unwrap_or(""));
+        //if let Some(street) = address.get("street") {
+          //  println!("Street: {}", street.as_str().unwrap_or(""));
+        //}
     }
 
     //build git gnostr event
