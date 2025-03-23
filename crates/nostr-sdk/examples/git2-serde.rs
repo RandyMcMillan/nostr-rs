@@ -3,17 +3,18 @@
 // Distributed under the MIT software license
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::fmt::Write;
 
 use anyhow::{anyhow, Result};
 use git2::{Commit, ObjectType, Oid, Repository};
 use nostr_sdk::prelude::*;
+use nostr_sdk::EventBuilder;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use serde_json::{Result as SerdeJsonResult, Value};
 use sha2::{Digest, Sha256};
 use tracing::{debug, info};
 
-//CommitStruct
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
     id: String,
@@ -27,7 +28,13 @@ struct SerializableCommit {
     time: i64,
 }
 
-use nostr_sdk::EventBuilder;
+fn byte_array_to_hex_string(byte_array: &[u8; 32]) -> String {
+    let mut hex_string = String::new();
+    for byte in byte_array {
+        write!(&mut hex_string, "{:02x}", byte).unwrap(); // Use unwrap for simplicity, handle errors in production.
+    }
+    hex_string
+}
 
 async fn create_event_with_custom_tags(
     keys: &Keys,
@@ -73,7 +80,7 @@ async fn create_event(
     client.send_event(signed_event.clone()).await?;
 
     info!("{}", serde_json::to_string_pretty(&signed_event)?);
-    info!("Event sent: {:?}", signed_event);
+    info!("Event sent:\n{:?}", signed_event);
 
     Ok(())
 }
@@ -88,7 +95,7 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
         .message()
         .ok_or(anyhow!("No commit message"))?
         .to_string();
-    debug!("message: {:?}", message);
+    debug!("message:\n{:?}", message);
     let time = commit.time().seconds();
     debug!("time: {:?}", time);
 
@@ -110,32 +117,28 @@ fn serialize_commit(commit: &Commit) -> Result<String> {
 }
 
 fn deserialize_commit<'a>(repo: &'a Repository, data: &'a str) -> Result<Commit<'a>> {
+    //we serialize the commit data
+    //easier to grab the commit.id
     let serializable_commit: SerializableCommit = serde_json::from_str(data)?;
-
+    //grab the commit.id
     let oid = Oid::from_str(&serializable_commit.id)?;
+    //oid used to search the repo
     let commit_obj = repo.find_object(oid, Some(ObjectType::Commit))?;
-
+    //grab the commit
     let commit = commit_obj.peel_to_commit()?;
-
+    //confirm we grabbed the correct commit
     if commit.id().to_string() != serializable_commit.id {
         return Err(anyhow!("Commit ID mismatch during deserialization"));
     }
-
+    //return the commit
     Ok(commit)
 }
 
 fn generate_nostr_keys_from_commit_hash(commit_id: &str) -> Result<Keys> {
-    let mut hasher = Sha256::new();
-    hasher.update(commit_id.as_bytes());
-    let hash = hasher.finalize();
-
-    let mut padded_hash = [0u8; 32];
-    padded_hash.copy_from_slice(&hash[..]);
-
-    let secret_key = SecretKey::from_slice(&padded_hash)?;
-    let keys = Keys::new(secret_key);
-
-    Ok(keys)
+    let padded_commit_id = format!("{:0>64}", commit_id);
+    info!("padded_commit_id:{:?}", padded_commit_id);
+    let keys = Keys::parse(&padded_commit_id);
+    Ok(keys.unwrap())
 }
 
 fn parse_json(json_string: &str) -> SerdeJsonResult<Value> {
@@ -158,7 +161,7 @@ async fn main() -> Result<()> {
 
     //send to create_event function with &"custom content"
     let signed_event = create_event(keys, custom_tags, &"custom content").await;
-    info!("signed_event={:?}", signed_event);
+    info!("signed_event:\n{:?}", signed_event);
 
     //initialize git repo
     let repo = Repository::discover(".")?;
@@ -172,12 +175,13 @@ async fn main() -> Result<()> {
     let commit = obj.peel_to_commit()?;
     let commit_id = commit.id().to_string();
     //some info wrangling
-    info!("commit_id: {}", commit_id);
+    info!("commit_id:\n{}", commit_id);
+    let padded_commit_id = format!("{:0>64}", commit_id);
 
     // commit based keys
     let keys = generate_nostr_keys_from_commit_hash(&commit_id)?;
-    info!("keys.secret_key(): {:?}", keys.secret_key());
-    info!("keys.public_key(): {}", keys.public_key());
+    info!("keys.secret_key():\n{:?}", keys.secret_key());
+    info!("keys.public_key():\n{}", keys.public_key());
 
     //TODO config metadata
 
@@ -190,68 +194,73 @@ async fn main() -> Result<()> {
 
     //access some git info
     let serialized_commit = serialize_commit(&commit)?;
-    info!("Serialized commit: {}", serialized_commit);
+    info!("Serialized commit:\n{}", serialized_commit);
 
     let binding = serialized_commit.clone();
     let deserialized_commit = deserialize_commit(&repo, &binding)?;
-    info!("Deserialized commit: {:?}", deserialized_commit);
+    info!("Deserialized commit:\n{:?}", deserialized_commit);
 
-    info!("Original commit ID: {}", commit_id);
-    info!("Deserialized commit ID: {}", deserialized_commit.id());
+    info!("Original commit ID:\n{}", commit_id);
+    info!("Deserialized commit ID:\n{}", deserialized_commit.id());
 
     //additional checking
     if commit.id() != deserialized_commit.id() {
-        info!("Commit IDs do not match!");
+        debug!("Commit IDs do not match!");
     } else {
-        info!("Commit IDs match!");
+        debug!("Commit IDs match!");
     }
 
     let value: Value = parse_json(&serialized_commit)?;
-    //info!("Value! {}", value);
-    info!("Value!");
-    info!("Value!");
-    info!("Value!");
+    //info!("value:\n{}", value);
 
     // Accessing object elements.
     if let Some(id) = value.get("id") {
-        println!("id: {}", id.as_str().unwrap_or(""));
+        info!("id:\n{}", id.as_str().unwrap_or(""));
     }
     if let Some(tree) = value.get("tree") {
-        println!("tree: {}", tree.as_str().unwrap_or(""));
+        info!("tree:\n{}", tree.as_str().unwrap_or(""));
     }
-    if let Some(parents) = value.get("parents") {
-        println!("parents: {}", parents.as_str().unwrap_or(""));
+    // Accessing parent commits (merge may be array)
+    if let Some(parent) = value.get("parents") {
+        if let Value::Array(arr) = parent {
+            if let Some(parent) = arr.get(0) {
+                info!("parent:\n{}", parent.as_str().unwrap_or("initial commit"));
+            }
+            if let Some(parent) = arr.get(1) {
+                info!("parent:\n{}", parent.as_str().unwrap_or(""));
+            }
+        }
     }
     if let Some(author_name) = value.get("author_name") {
-        println!("author_name: {}", author_name.as_str().unwrap_or(""));
+        info!("author_name:\n{}", author_name.as_str().unwrap_or(""));
     }
     if let Some(author_email) = value.get("author_email") {
-        println!("author_email: {}", author_email.as_str().unwrap_or(""));
+        info!("author_email:\n{}", author_email.as_str().unwrap_or(""));
     }
     if let Some(committer_name) = value.get("committer_name") {
-        println!("committer_name: {}", committer_name.as_str().unwrap_or(""));
+        info!("committer_name:\n{}", committer_name.as_str().unwrap_or(""));
     }
     if let Some(committer_email) = value.get("committer_email") {
-        println!(
-            "committer_email: {}",
+        info!(
+            "committer_email:\n{}",
             committer_email.as_str().unwrap_or("")
         );
     }
     if let Some(message) = value.get("message") {
-        println!("message: {}", message.as_str().unwrap_or(""));
+        info!("message:\n{}", message.as_str().unwrap_or(""));
     }
     if let Value::Number(time) = &value["time"] {
-        println!("time: {}", time);
+        info!("time:\n{}", time);
     }
 
     // // Accessing array elements.
     // if let Some(items) = value.get("items") {
     //     if let Value::Array(arr) = items {
     //         if let Some(first_item) = arr.get(0) {
-    //             println!("First item: {}", first_item);
+    //             info!("First item: {}", first_item);
     //         }
     //         if let Some(second_item) = arr.get(1){
-    //             println!("second item: {}", second_item.as_str().unwrap_or(""));
+    //             info!("second item: {}", second_item.as_str().unwrap_or(""));
     //         }
     //     }
     // }
