@@ -157,7 +157,6 @@ fn split_value_by_newline(json_value: &Value) -> Option<Vec<String>> {
     }
 }
 
-
 fn value_to_string(value: &Value) -> String {
     match value {
         Value::Null => "null".to_string(),
@@ -177,7 +176,6 @@ fn value_to_string(value: &Value) -> String {
         }
     }
 }
-
 
 fn split_json_string(value: &Value, separator: &str) -> Vec<String> {
     if let Value::String(s) = value {
@@ -289,33 +287,13 @@ async fn main() -> Result<()> {
         );
     }
 
+    //split the commit message into a Vec<String>
     if let Some(message) = value.get("message") {
-        //		for line in split_json_string(message, "\n") {}
-
         let parts = split_json_string(&message, "\n");
-        //println!("\n>>>>>>>>>>>>>>{:?}\n", parts);
-		for part in  parts {
-			debug!("{}", part);
-		}
-
-
-    //    if let Ok(json_value) = serde_json::from_str(&value_to_string(&serialized_commit)) {
-    //        if let Some(lines) = split_value_by_newline(&json_value) {
-    //            for line in lines {
-    //                println!(">>>>>>---->>>{}", line);
-    //            }
-    //        } else {
-    //            println!("The JSON value is not a string.");
-    //        }
-
-    ////info!("json_value:\n{}", json_value.as_str().unwrap_or(""));
-    //    } else {
-    //        println!("Invalid JSON.");
-    ////info!("json_value:\n{}", json_value.as_str().unwrap_or(""));
-    //    }
-
-    //info!("json_value:\n{}", json_value.as_str().unwrap_or(""));
-    info!("message:\n{}", message.as_str().unwrap_or(""));
+        for part in parts {
+            debug!("{}", part);
+        }
+        info!("message:\n{}", message.as_str().unwrap_or(""));
     }
     if let Value::Number(time) = &value["time"] {
         info!("time:\n{}", time);
@@ -346,71 +324,6 @@ async fn main() -> Result<()> {
     info!("Event ID BECH32: {}", output.id().to_bech32()?);
     info!("Sent to: {:?}", output.success);
     info!("Not sent to: {:?}", output.failed);
-
-    // Create a filter for the specific event ID
-    // format
-    // filter: Filter { ids: Some({EventId(76f7789cfe0b636222ef4825a9e3e2ac580d942bf7212655e5f5ee1161264870)}), authors: None, kinds: None, search: None, since: None, until: None, limit: None, generic_tags: {} }
-
-    let mut generic_tag_set = BTreeSet::new();
-    generic_tag_set.insert(String::from("A Dance With Dragons"));
-
-    let mut generic_tags: BTreeMap<nostr::Alphabet, BTreeSet<String>> = BTreeMap::new();
-    generic_tags.insert(Alphabet::C, generic_tag_set.clone());
-
-    generic_tags.insert(Alphabet::A, generic_tag_set);
-    //generic_tags.insert(Alphabet::B, Alphabet::B);
-
-    let filter = Filter::new()
-        .id(*output.id())
-        .authors([keys.public_key()])
-        .kinds([])
-        .event(*output.id())
-        .hashtags(["gnostr", "git"]);
-    //{generic_tags};
-    info!("filter: {:?}", filter);
-
-    //
-    //
-    //
-
-    //
-    //
-    //
-
-    // Subscribe to the filter
-    let opts = SubscribeAutoCloseOptions::default();
-    let subscription_id = client.subscribe(vec![filter], Some(opts)).await?;
-    info!("subscription_id: {:?}", subscription_id);
-    info!("subscription_id.val: {:?}", subscription_id.val);
-    info!("subscription_id.success: {:?}", subscription_id.success);
-    info!("subscription_id.failed: {:?}", subscription_id.failed);
-
-    let mut notifications = client.notifications();
-    while let Ok(notification) = notifications.recv().await {
-        if let RelayPoolNotification::Event {
-            relay_url: ref relay_url,
-            subscription_id: ref subsciption_id,
-            event: ref output,
-        } = notification
-        {
-            info!("subscription_id: {:?}", subscription_id);
-            info!("subscription_id.val: {:?}", subscription_id.val);
-            info!("subscription_id.success: {:?}", subscription_id.success);
-            //info!("success: {:?}", success);
-            //info!("event: {:?}", event);
-        }
-        if let RelayPoolNotification::Message {
-            relay_url: _,
-            message: message,
-        } = notification
-        {
-            info!("subscription_id: {:?}", subscription_id);
-            info!("subscription_id.val: {:?}", subscription_id.val);
-            info!("subscription_id.success: {:?}", subscription_id.success);
-            //info!("success: {:?}", success);
-            //info!("event: {:?}", event);
-        }
-    }
 
     client.disconnect().await?;
     Ok(())
