@@ -293,7 +293,10 @@ async fn main() -> Result<()> {
         //		for line in split_json_string(message, "\n") {}
 
         let parts = split_json_string(&message, "\n");
-        println!(">>>>>>>>>>>>>>{:?}", parts);
+        println!("\n>>>>>>>>>>>>>>{:?}\n", parts);
+		for part in  parts {
+        println!("\n>>>>>>>>>>>>>>{:?}\n", part);
+		}
 
 
     //    if let Ok(json_value) = serde_json::from_str(&value_to_string(&serialized_commit)) {
