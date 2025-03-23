@@ -105,7 +105,15 @@ async fn create_event(
 	   format!("Hello Worlds {}", pubkey),
     )
     .tag(Tag::public_key(pubkey))
-    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3 4 11 22 33 44".chars()));
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3 4 11 22 33 44".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3 4 11 22 33".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3 4 11 22".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3 4 11".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3 4".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2 3".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1 2".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "1".chars()))
+    .tag(Tag::custom(TagKind::Custom(Cow::from("gnostr")), "".chars()));
 
 	//send from send_event_builder
     let output = client.send_event_builder(builder).await?;
