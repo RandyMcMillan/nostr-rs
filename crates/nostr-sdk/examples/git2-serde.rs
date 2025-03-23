@@ -293,9 +293,9 @@ async fn main() -> Result<()> {
         //		for line in split_json_string(message, "\n") {}
 
         let parts = split_json_string(&message, "\n");
-        println!("\n>>>>>>>>>>>>>>{:?}\n", parts);
+        //println!("\n>>>>>>>>>>>>>>{:?}\n", parts);
 		for part in  parts {
-        println!("\n>>>>>>>>>>>>>>{:?}\n", part);
+			println!("{}", part);
 		}
 
 
