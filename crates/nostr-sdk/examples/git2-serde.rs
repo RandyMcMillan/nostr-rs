@@ -322,10 +322,10 @@ async fn main() -> Result<()> {
     let output = client.send_event_builder(builder).await?;
 
     //some reporting
-    info!("Event ID: {}", output.id());
-    info!("Event ID BECH32: {}", output.id().to_bech32()?);
-    info!("Sent to: {:?}", output.success);
-    info!("Not sent to: {:?}", output.failed);
+    println!("Event ID: {}", output.id());
+    println!("Event ID BECH32: {}", output.id().to_bech32()?);
+    println!("Sent to: {:?}", output.success);
+    println!("Not sent to: {:?}", output.failed);
 
     client.disconnect().await?;
     Ok(())
