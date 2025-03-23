@@ -13,6 +13,7 @@ use serde_json::{Result as SerdeJsonResult, Value};
 use sha2::{Digest, Sha256};
 use tracing::{debug, info};
 
+//CommitStruct
 #[derive(Serialize, Deserialize, Debug)]
 struct SerializableCommit {
     id: String,
@@ -205,23 +206,11 @@ async fn main() -> Result<()> {
         info!("Commit IDs match!");
     }
 
-
-
-        //id,
-        //tree,
-        //parents,
-        //author_name: author.name().unwrap_or_default().to_string(),
-        //author_email: author.email().unwrap_or_default().to_string(),
-        //committer_name: committer.name().unwrap_or_default().to_string(),
-        //committer_email: committer.email().unwrap_or_default().to_string(),
-        //message,
-        //time,
-
     let value: Value = parse_json(&serialized_commit)?;
-        //info!("Value! {}", value);
-        info!("Value!");
-        info!("Value!");
-        info!("Value!");
+    //info!("Value! {}", value);
+    info!("Value!");
+    info!("Value!");
+    info!("Value!");
 
     // Accessing object elements.
     if let Some(id) = value.get("id") {
@@ -243,7 +232,10 @@ async fn main() -> Result<()> {
         println!("committer_name: {}", committer_name.as_str().unwrap_or(""));
     }
     if let Some(committer_email) = value.get("committer_email") {
-        println!("committer_email: {}", committer_email.as_str().unwrap_or(""));
+        println!(
+            "committer_email: {}",
+            committer_email.as_str().unwrap_or("")
+        );
     }
     if let Some(message) = value.get("message") {
         println!("message: {}", message.as_str().unwrap_or(""));
@@ -252,17 +244,19 @@ async fn main() -> Result<()> {
         println!("time: {}", time);
     }
 
+    // // Accessing array elements.
+    // if let Some(items) = value.get("items") {
+    //     if let Value::Array(arr) = items {
+    //         if let Some(first_item) = arr.get(0) {
+    //             println!("First item: {}", first_item);
+    //         }
+    //         if let Some(second_item) = arr.get(1){
+    //             println!("second item: {}", second_item.as_str().unwrap_or(""));
+    //         }
+    //     }
+    // }
 
-    if let Value::Number(age) = &value["age"] {
-        println!("Age: {}", age);
-    }
-
-    if let Some(summary) = value.get("summary") {
-            println!("Summary: {}", summary.as_str().unwrap_or(""));
-        //if let Some(street) = address.get("street") {
-          //  println!("Street: {}", street.as_str().unwrap_or(""));
-        //}
-    }
+    //TODO
 
     //build git gnostr event
     let builder = EventBuilder::text_note(serialized_commit);
