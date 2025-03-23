@@ -234,12 +234,13 @@ async fn main() -> Result<()> {
 
     //access some git info
     let serialized_commit = serialize_commit(&commit)?;
-    info!("Serialized commit:\n{}", serialized_commit);
+    debug!("Serialized commit:\n{}", serialized_commit);
 
     let binding = serialized_commit.clone();
     let deserialized_commit = deserialize_commit(&repo, &binding)?;
     info!("Deserialized commit:\n{:?}", deserialized_commit);
 
+    //access commit summary in the deserialized commit
     info!("Original commit ID:\n{}", commit_id);
     info!("Deserialized commit ID:\n{}", deserialized_commit.id());
 
@@ -291,9 +292,9 @@ async fn main() -> Result<()> {
     if let Some(message) = value.get("message") {
         let parts = split_json_string(&message, "\n");
         for part in parts {
-            debug!("{}", part);
+            info!("\n{}", part);
         }
-        info!("message:\n{}", message.as_str().unwrap_or(""));
+        debug!("message:\n{}", message.as_str().unwrap_or(""));
     }
     if let Value::Number(time) = &value["time"] {
         info!("time:\n{}", time);
