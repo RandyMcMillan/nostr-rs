@@ -2,6 +2,7 @@
 // Copyright (c) 2023-2024 Rust Nostr Developers
 // Distributed under the MIT software license
 
+use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write;
 use std::io::ErrorKind;
@@ -72,7 +73,6 @@ async fn create_event(
 
     let opts = Options::new().gossip(true);
 	let client = Client::builder().signer(keys.clone()).opts(opts).build();
-    //let client = Client::new(keys);
 
     client.add_discovery_relay("wss://relay.damus.io").await?;
     client.add_discovery_relay("wss://purplepag.es").await?;
@@ -82,10 +82,20 @@ async fn create_event(
     // TODO get_relay_list here
     client.add_relay("wss://relay.damus.io").await?;
     client.add_relay("wss://e.nos.lol").await?;
-    client.add_relay("wss://nos.lol").await?;
+    //client.add_relay("wss://nos.lol").await?;
 
     // Connect to the relays.
     client.connect().await;
+
+
+    // client.send_event - signed_event
+    client.send_event(signed_event.clone()).await?;
+
+    info!("{}", serde_json::to_string_pretty(&signed_event)?);
+    info!("signed_event sent:\n{:?}", signed_event);
+
+
+
 
     // Publish a text note
     let pubkey = keys.public_key();
@@ -94,7 +104,11 @@ async fn create_event(
     let builder = EventBuilder::text_note(
 	   format!("Hello Worlds {}", pubkey),
     )
-    .tag(Tag::public_key(pubkey));
+    .tag(Tag::public_key(pubkey))
+	//.tag(Tag::custom(TagKind::Custom(Cow::from("Tag::custom..."), "value"), ""));
+    .tag(Tag::custom(TagKind::Custom(Cow::from("Tag::custom...")), "1 2 3 4".chars()));
+
+	//send from send_event_builder
     let output = client.send_event_builder(builder).await?;
     info!("Event ID: {}", output.to_bech32()?);
 
@@ -108,13 +122,6 @@ async fn create_event(
         info!("- {url}: {reason:?}");
     }
 
-    // Publish a text note
-    let test_author_pubkey =
-        PublicKey::parse("npub1drvpzev3syqt0kjrls50050uzf25gehpz9vgdw08hvex7e0vgfeq0eseet")?;
-
-    info!("test_author_pubkey={}", test_author_pubkey);
-
-
     // Get events
     let filter_one = Filter::new().author(pubkey).kind(Kind::TextNote).limit(10);
     let events = client
@@ -124,23 +131,22 @@ async fn create_event(
     for event in events.into_iter() {
         info!("{}", event.as_json());
     }
+
+
+    // another filter
+    let test_author_pubkey =
+        PublicKey::parse("npub1drvpzev3syqt0kjrls50050uzf25gehpz9vgdw08hvex7e0vgfeq0eseet")?;
+
+    info!("test_author_pubkey={}", test_author_pubkey);
+
     let filter_test_author = Filter::new().author(test_author_pubkey).kind(Kind::TextNote).limit(10);
     let events = client
         .fetch_events(vec![filter_test_author], Duration::from_secs(10))
         .await?;
 
     for event in events.into_iter() {
-        info!("{}", event.as_json());
+        info!("test_author:\n\n{}", event.as_json());
     }
-
-
-
-
-    // Publish the event to the relays.
-    client.send_event(signed_event.clone()).await?;
-
-    info!("{}", serde_json::to_string_pretty(&signed_event)?);
-    info!("Event sent:\n{:?}", signed_event);
 
     Ok(())
 }
