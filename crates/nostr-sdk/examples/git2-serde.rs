@@ -295,7 +295,7 @@ async fn main() -> Result<()> {
         let parts = split_json_string(&message, "\n");
         //println!("\n>>>>>>>>>>>>>>{:?}\n", parts);
 		for part in  parts {
-			println!("{}", part);
+			debug!("{}", part);
 		}
 
 
