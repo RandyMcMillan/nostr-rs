@@ -4,6 +4,8 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write;
+use std::io::ErrorKind;
+use std::process;
 
 use anyhow::{anyhow, Result};
 use git2::{Commit, ObjectType, Oid, Repository};
@@ -11,7 +13,8 @@ use nostr_sdk::prelude::*;
 use nostr_sdk::EventBuilder;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use serde_json::{Result as SerdeJsonResult, Value};
+use serde_json::error::Category;
+use serde_json::{Error, Result as SerdeJsonResult, Value};
 use sha2::{Digest, Sha256};
 use tracing::{debug, info};
 
@@ -145,6 +148,45 @@ fn parse_json(json_string: &str) -> SerdeJsonResult<Value> {
     serde_json::from_str(json_string)
 }
 
+fn split_value_by_newline(json_value: &Value) -> Option<Vec<String>> {
+    if let Value::String(s) = json_value {
+        let lines: Vec<String> = s.lines().map(|line| line.to_string()).collect();
+        Some(lines)
+    } else {
+        None // Return None if the Value is not a string
+    }
+}
+
+
+fn value_to_string(value: &Value) -> String {
+    match value {
+        Value::Null => "null".to_string(),
+        Value::Bool(b) => b.to_string(),
+        Value::Number(n) => n.to_string(),
+        Value::String(s) => s.clone(),
+        Value::Array(arr) => {
+            let elements: Vec<String> = arr.iter().map(value_to_string).collect();
+            format!("[{}]", elements.join(", "))
+        }
+        Value::Object(obj) => {
+            let pairs: Vec<String> = obj
+                .iter()
+                .map(|(k, v)| format!("\"{}\": {}", k, value_to_string(v)))
+                .collect();
+            format!("{{{}}}", pairs.join(", "))
+        }
+    }
+}
+
+
+fn split_json_string(value: &Value, separator: &str) -> Vec<String> {
+    if let Value::String(s) = value {
+        s.split(&separator).map(|s| s.to_string()).collect()
+    } else {
+        vec![String::from("")]
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
@@ -246,8 +288,31 @@ async fn main() -> Result<()> {
             committer_email.as_str().unwrap_or("")
         );
     }
+
     if let Some(message) = value.get("message") {
-        info!("message:\n{}", message.as_str().unwrap_or(""));
+        //		for line in split_json_string(message, "\n") {}
+
+        let parts = split_json_string(&message, "\n");
+        println!(">>>>>>>>>>>>>>{:?}", parts);
+
+
+    //    if let Ok(json_value) = serde_json::from_str(&value_to_string(&serialized_commit)) {
+    //        if let Some(lines) = split_value_by_newline(&json_value) {
+    //            for line in lines {
+    //                println!(">>>>>>---->>>{}", line);
+    //            }
+    //        } else {
+    //            println!("The JSON value is not a string.");
+    //        }
+
+    ////info!("json_value:\n{}", json_value.as_str().unwrap_or(""));
+    //    } else {
+    //        println!("Invalid JSON.");
+    ////info!("json_value:\n{}", json_value.as_str().unwrap_or(""));
+    //    }
+
+    //info!("json_value:\n{}", json_value.as_str().unwrap_or(""));
+    info!("message:\n{}", message.as_str().unwrap_or(""));
     }
     if let Value::Number(time) = &value["time"] {
         info!("time:\n{}", time);
