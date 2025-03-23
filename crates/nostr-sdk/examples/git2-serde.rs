@@ -74,7 +74,8 @@ async fn create_event(
     // add some relays
     // TODO get_relay_list here
     client.add_relay("wss://relay.damus.io").await?;
-    client.add_relay("wss://relay.snort.social").await?;
+    client.add_relay("wss://e.nos.lol").await?;
+    client.add_relay("wss://nos.lol").await?;
 
     // Connect to the relays.
     client.connect().await;
