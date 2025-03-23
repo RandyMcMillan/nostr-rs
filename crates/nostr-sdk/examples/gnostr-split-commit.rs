@@ -16,6 +16,7 @@ use serde_json;
 use serde_json::error::Category;
 use serde_json::{Error, Result as SerdeJsonResult, Value};
 use sha2::{Digest, Sha256};
+use tokio::time::Duration;
 use tracing::{debug, info};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -69,7 +70,13 @@ async fn create_event(
     let signed_event = create_event_with_custom_tags(&keys, content, custom_tags).await?;
     info!("{}", serde_json::to_string_pretty(&signed_event)?);
 
-    let client = Client::new(keys);
+    let opts = Options::new().gossip(true);
+	let client = Client::builder().signer(keys.clone()).opts(opts).build();
+    //let client = Client::new(keys);
+
+    client.add_discovery_relay("wss://relay.damus.io").await?;
+    client.add_discovery_relay("wss://purplepag.es").await?;
+    //client.add_discovery_relay("ws://oxtrdevav64z64yb7x6rjg4ntzqjhedm5b5zjqulugknhzr46ny2qbad.onion").await?;
 
     // add some relays
     // TODO get_relay_list here
@@ -79,6 +86,55 @@ async fn create_event(
 
     // Connect to the relays.
     client.connect().await;
+
+    // Publish a text note
+    let pubkey = keys.public_key();
+
+    info!("pubkey={}", keys.public_key());
+    let builder = EventBuilder::text_note(
+	   format!("Hello Worlds {}", pubkey),
+    )
+    .tag(Tag::public_key(pubkey));
+    let output = client.send_event_builder(builder).await?;
+    info!("Event ID: {}", output.to_bech32()?);
+
+    info!("Sent to:");
+    for url in output.success.into_iter() {
+        info!("- {url}");
+    }
+
+    info!("Not sent to:");
+    for (url, reason) in output.failed.into_iter() {
+        info!("- {url}: {reason:?}");
+    }
+
+    // Publish a text note
+    let test_author_pubkey =
+        PublicKey::parse("npub1drvpzev3syqt0kjrls50050uzf25gehpz9vgdw08hvex7e0vgfeq0eseet")?;
+
+    info!("test_author_pubkey={}", test_author_pubkey);
+
+
+    // Get events
+    let filter_one = Filter::new().author(pubkey).kind(Kind::TextNote).limit(10);
+    let events = client
+        .fetch_events(vec![filter_one], Duration::from_secs(10))
+        .await?;
+
+    for event in events.into_iter() {
+        info!("{}", event.as_json());
+    }
+    let filter_test_author = Filter::new().author(test_author_pubkey).kind(Kind::TextNote).limit(10);
+    let events = client
+        .fetch_events(vec![filter_test_author], Duration::from_secs(10))
+        .await?;
+
+    for event in events.into_iter() {
+        info!("{}", event.as_json());
+    }
+
+
+
 
     // Publish the event to the relays.
     client.send_event(signed_event.clone()).await?;
